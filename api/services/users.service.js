@@ -4,11 +4,11 @@ class UsersService {
   constructor() {
     this.users = [
       {
-        id: '0925317182',
-        name: 'Roberto Bravo',
-        username: 'robertbass',
-        mail: 'robertbass@hotmail.com',
+        name: 'Full Name',
+        username: 'yourUsername',
+        mail: 'your@email.com',
         password: '12345',
+        role: 'admin'
       },
     ];
     this.show();
