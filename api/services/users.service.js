@@ -5,10 +5,10 @@ class UsersService {
     this.users = [
       {
         name: 'Full Name',
+        email: 'your@email.com',
         username: 'yourUsername',
-        mail: 'your@email.com',
-        password: '12345',
-        role: 'admin'
+        password: '12345678',
+        role: 'client'
       },
     ];
     this.show();

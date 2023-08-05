@@ -1,14 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const UsersService = require('../services/users.service');
+const validatorHandler = require('../middlewares/validator.handler');
+const { createUserSchema, updateUserSchema, getUserSchema } = require('../schemas/users.schema');
 
 const service = new UsersService();
 
 router.get('/', getUsers);
-router.get('/:username', findUser);
-router.post('/', createUser);
-router.patch('/:username', updateUserInfo);
-router.delete('/:username', deleteUser);
+router.get('/:username', validatorHandler(getUserSchema, 'params'), findUser);
+router.post('/', validatorHandler(createUserSchema, 'body'), createUser);
+router.patch('/:username', validatorHandler(getUserSchema, 'params'), validatorHandler(updateUserSchema, 'body'), updateUserInfo);
+router.delete('/:username', validatorHandler(getUserSchema, 'params'), deleteUser);
 
 
 // ************************************************************************************
@@ -37,7 +39,7 @@ async function createUser (req, res, next) {
   try {
     const body = req.body;
     await service.create(body);
-    res.status(201).json(body);
+    res.status(201).json({message: "User created succesfully", body});
   } catch (error) {
     next(error);
   }

@@ -1,34 +1,31 @@
 const joi = require('joi');
 
 const id = joi.number().integer();
-const name = joi.string().min(3).max(15);
-const description = joi.string().min(5).max(50);
-const adjective = joi.string().min(1).max(15);
-const material = joi.string().min(1).max(15);
-const price = joi.number().min(5);
+const name = joi.string().min(3).max(50);
+const description = joi.string().min(5).max(100);
+const price = joi.number().min(1);
 const stock = joi.number().integer();
+const category =  joi.any().valid('electronics', 'clothes', 'furnitures', 'shoes', 'others');
 
 const createProductSchema = joi.object({
   name: name.required(),
   description: description.required(),
-  adjective: adjective.required(),
-  material: material.required(),
   price: price.required(),
   stock: stock.required(),
   id: id,
+  category: category.required()
 });
 
 const updateProductSchema = joi.object({
   name: name,
   description: description,
-  adjective: adjective,
-  material: material,
   price: price,
-  stock: stock
+  stock: stock,
+  category: category
 });
 
 const getProductSchema = joi.object({
   id: id.required()
 });
 
-module.exports = { createProductSchema, updateProductSchema, getProductSchema};
+module.exports = { createProductSchema, updateProductSchema, getProductSchema };

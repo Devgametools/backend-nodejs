@@ -10,15 +10,16 @@ class ProductsService {
 
   async generate () {
     const limit = 10;
+    const categories = ['electronics', 'clothes', 'furnitures', 'shoes', 'others'];
     for (let i = 0; i < limit; i++) {
+      let index = Math.floor(Math.random() * 5);
       this.products.push({
         name: faker.commerce.productName(),
         description: faker.commerce.productDescription(),
-        adjective: faker.commerce.productAdjective(),
-        material: faker.commerce.productMaterial(),
         price: parseInt(faker.commerce.price(), 10),
         stock: Math.floor(Math.random() * 10),
-        id: i + 1
+        id: i + 1,
+        category: categories[index]
       })
     }
   }
