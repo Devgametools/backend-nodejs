@@ -1,27 +1,13 @@
-const { faker } = require("@faker-js/faker");
 const boom = require('@hapi/boom');
+
+const pool = require('../libs/postgres.pool');
 
 class ProductsService {
 
   constructor () {
     this.products = [];
-    this.generate();
-  }
-
-  async generate () {
-    const limit = 10;
-    const categories = ['electronics', 'clothes', 'furnitures', 'shoes', 'others'];
-    for (let i = 0; i < limit; i++) {
-      let index = Math.floor(Math.random() * 5);
-      this.products.push({
-        name: faker.commerce.productName(),
-        description: faker.commerce.productDescription(),
-        price: parseInt(faker.commerce.price(), 10),
-        stock: Math.floor(Math.random() * 10),
-        id: i + 1,
-        category: categories[index]
-      })
-    }
+    this.pool = pool;
+    this.pool.on('error', (err) => console.error(err));
   }
 
   async create (data) {
@@ -35,19 +21,21 @@ class ProductsService {
   }
 
   async show () {
-    if (this.products.length == 0) {
+    const query = 'SELECT * FROM products';
+    const resultSet = await this.pool.query(query);
+    if (resultSet.length == 0) {
       throw boom.notFound('No products found');
     } else {
-      return this.products;
+      return resultSet.rows;
     }
   }
 
   async find (id) {
-    const item = this.products.find(item => item.id === id);
-    if (!item) {
+    const resultSet = await this.pool.query(`SELECT * FROM products WHERE id = '${id}'`);
+    if (resultSet.length == 0) {
       throw boom.notFound('Product not found');
     } else {
-      return item;
+      return resultSet.rows;
     }
   }
 

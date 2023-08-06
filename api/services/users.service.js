@@ -1,20 +1,16 @@
 const boom = require('@hapi/boom');
 
+const pool = require('../libs/postgres.pool');
+
 class UsersService {
   constructor() {
-    this.users = [
-      {
-        name: 'Full Name',
-        email: 'your@email.com',
-        username: 'yourUsername',
-        password: '12345678',
-        role: 'client'
-      },
-    ];
+    this.pool = pool;
+    this.pool.on('error', (err) => {throw boom.notAcceptable(err)});
     this.show();
   }
 
   async create(data) {
+
     if (!data) {
       throw boom.notAcceptable('No data found to create user');
     } else {
@@ -24,19 +20,20 @@ class UsersService {
   }
 
   async show() {
-    if (this.users.length == 0) {
+    const resultSet = await this.pool.query('SELECT * FROM users');
+    if (resultSet.length == 0) {
       throw boom.notFound('No users found');
     } else {
-      return this.users;
+      return resultSet.rows;
     }
   }
 
   async findUser(username) {
-    const user = this.users.find((user) => user.username === username);
-    if (!user) {
+    const resultSet = await this.pool.query(`SELECT * FROM users WHERE username = '${username}'`);
+    if (resultSet.length == 0) {
       throw boom.notFound('User not Found');
     } else {
-      return user;
+      return resultSet.rows;
     }
   }
 
