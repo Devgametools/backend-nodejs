@@ -7,7 +7,7 @@ class ProductsService {
   constructor () {
     this.products = [];
     this.pool = pool;
-    this.pool.on('error', (err) => console.error(err));
+    this.pool.on('error', (err) => {throw boom.notAcceptable(err)});
   }
 
   async create (data) {
