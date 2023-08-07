@@ -1,13 +1,11 @@
 const boom = require('@hapi/boom');
 
-const pool = require('../libs/postgres.pool');
+const sequelize = require('../libs/sequelize');
 
 class ProductsService {
 
   constructor () {
     this.products = [];
-    this.pool = pool;
-    this.pool.on('error', (err) => {throw boom.notAcceptable(err)});
   }
 
   async create (data) {
@@ -22,20 +20,20 @@ class ProductsService {
 
   async show () {
     const query = 'SELECT * FROM products';
-    const resultSet = await this.pool.query(query);
-    if (resultSet.length == 0) {
+    const [data] = await sequelize.query(query);
+    if (data.length == 0) {
       throw boom.notFound('No products found');
     } else {
-      return resultSet.rows;
+      return data;
     }
   }
 
   async find (id) {
-    const resultSet = await this.pool.query(`SELECT * FROM products WHERE id = '${id}'`);
-    if (resultSet.length == 0) {
+    const [data] = await sequelize.query(`SELECT * FROM products WHERE id = '${id}'`);
+    if (data.length == 0) {
       throw boom.notFound('Product not found');
     } else {
-      return resultSet.rows;
+      return data;
     }
   }
 

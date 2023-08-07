@@ -1,63 +1,47 @@
 const boom = require('@hapi/boom');
 
-const pool = require('../libs/postgres.pool');
+const { models } = require('../libs/sequelize');
 
 class UsersService {
   constructor() {
-    this.pool = pool;
-    this.pool.on('error', (err) => {throw boom.notAcceptable(err)});
-    this.show();
   }
 
   async create(data) {
-
-    if (!data) {
+    const newUser = await models.User.create(data);
+    if (!newUser) {
       throw boom.notAcceptable('No data found to create user');
     } else {
-      this.users.push(data);
-      return data;
+      return newUser;
     }
   }
 
   async show() {
-    const resultSet = await this.pool.query('SELECT * FROM users');
-    if (resultSet.length == 0) {
+    const data = await models.User.findAll();
+    if (!data) {
       throw boom.notFound('No users found');
     } else {
-      return resultSet.rows;
+      return data;
     }
   }
 
   async findUser(username) {
-    const resultSet = await this.pool.query(`SELECT * FROM users WHERE username = '${username}'`);
-    if (resultSet.length == 0) {
+    const user = await models.User.findByPk(username);
+    if (!user) {
       throw boom.notFound('User not Found');
     } else {
-      return resultSet.rows;
+      return user;
     }
   }
 
   async update(username, changes) {
-    const index = this.users.findIndex((user) => user.username === username);
-    if (index === -1) {
-      throw boom.notFound('User not found');
-    } else {
-      const user = this.users[index];
-      this.users[index] = {
-        ...user,
-        ...changes,
-      };
-    }
-    return this.users[index];
+    const user = await this.findUser(username);
+    const newInfo = await user.update(changes);
+      return newInfo;
   }
 
   async delete(username) {
-    const index = this.users.findIndex((user) => user.username === username);
-    if (index === -1) {
-      throw boom.notFound('User not found');
-    } else {
-      this.users.splice(index, 1);
-    }
+    const user = await this.findUser(username);
+    await user.destroy();
     return { username };
   }
 }
