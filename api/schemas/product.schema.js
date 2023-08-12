@@ -5,15 +5,16 @@ const name = joi.string().min(3).max(50);
 const description = joi.string().min(5).max(100);
 const price = joi.number().min(1);
 const stock = joi.number().integer();
-const category =  joi.any().valid('electronics', 'clothes', 'furnitures', 'shoes', 'others');
+const categoryId =  joi.any().valid(1, 2, 3, 4, 5, 6); //'electronics', 'clothes', 'furnitures', 'shoes', 'toys', 'others'
+const images = joi.array();
 
 const createProductSchema = joi.object({
   name: name.required(),
   description: description.required(),
   price: price.required(),
   stock: stock.required(),
-  id: id,
-  category: category.required()
+  categoryId: categoryId.required(),
+  images: images
 });
 
 const updateProductSchema = joi.object({
@@ -21,7 +22,8 @@ const updateProductSchema = joi.object({
   description: description,
   price: price,
   stock: stock,
-  category: category
+  categoryId: categoryId,
+  images: images
 });
 
 const getProductSchema = joi.object({
