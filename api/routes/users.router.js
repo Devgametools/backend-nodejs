@@ -40,7 +40,7 @@ async function createUser(req, res, next) {
   try {
     const body = req.body;
     await service.create(body);
-    res.status(201).json({ message: 'Item created successfully', body });
+    res.status(201).json({ message: 'User created successfully', body });
   } catch (error) {
     next(error)
   }
@@ -51,7 +51,7 @@ async function updateUser (req, res, next) {
     const { username } = req.params;
     const body = req.body;
     await service.update(username, body);
-    res.status(202).json({ message: 'Item updated successfully', body });
+    res.status(202).json({ message: 'User updated successfully', body });
   } catch (error) {
     next(error);
   }
@@ -61,7 +61,7 @@ async function deleteUser (req, res, next) {
   try {
     const { username } = req.params;
     await service.delete(username);
-    res.status(202).json({ message: 'Item deleted successfully', username });
+    res.status(202).json({ message: 'User deleted successfully', username });
   } catch (error) {
     next(error);
   }

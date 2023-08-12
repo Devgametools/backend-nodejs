@@ -40,7 +40,7 @@ async function createProduct(req, res, next) {
   try {
     const body = req.body;
     await service.create(body);
-    res.status(201).json({ message: 'Item created successfully', body });
+    res.status(201).json({ message: 'Product created successfully', body });
   } catch (error) {
     next(error)
   }
@@ -51,7 +51,7 @@ async function updateProduct (req, res, next) {
     const { id } = req.params;
     const body = req.body;
     await service.update(parseInt(id), body);
-    res.status(202).json({ message: 'Item updated successfully', body });
+    res.status(202).json({ message: 'Product updated successfully', body });
   } catch (error) {
     next(error);
   }
@@ -61,7 +61,7 @@ async function deleteProduct (req, res, next) {
   try {
     const { id } = req.params;
     await service.delete(parseInt(id));
-    res.status(202).json({ message: 'Item deleted successfully', id });
+    res.status(202).json({ message: 'Product deleted successfully', id });
   } catch (error) {
     next(error);
   }

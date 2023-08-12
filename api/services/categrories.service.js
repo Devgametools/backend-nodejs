@@ -3,8 +3,8 @@ const { models } = require('../libs/sequelize');
 
 class CategoryService {
 
-  constructor(){
-  }
+  constructor(){}
+
   async create(data) {
     const newCategory = await models.Category.create(data);
     if (!newCategory) {
@@ -15,7 +15,7 @@ class CategoryService {
   }
 
   async show() {
-    const categories = await models.Category.findAll({include: ['products']});
+    const categories = await models.Category.findAll();
     if (!categories) {
       throw boom.notFound('No products found');
     } else {
@@ -24,18 +24,25 @@ class CategoryService {
   }
 
   async find(id) {
-    return { id };
+    const category = await models.Category.findByPk(parseInt(id));
+    if (!category) {
+      throw boom.notFound('Category not found');
+    } else {
+      return category;
+    }
+
   }
 
   async update(id, changes) {
-    return {
-      id,
-      changes,
-    };
+    const category = await this.find(parseInt(id));
+    const newCategory = await category.update(changes);
+    return newCategory
   }
 
   async delete(id) {
-    return { id };
+    const category = await this.find(parseInt(id));
+    await category.destroy();
+    return id;
   }
 
 }

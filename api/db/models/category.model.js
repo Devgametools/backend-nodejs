@@ -18,8 +18,13 @@ const categorySchema = {
     allowNull: false,
     type: DataTypes.DATE,
     field: 'created_at',
-    defaultValue: Sequelize.NOW,
+    defaultValue: Sequelize.NOW
   },
+  modifiedAt: {
+    allowNull: true,
+    type: DataTypes.DATE,
+    field: 'modified_at',
+  }
 }
 
 

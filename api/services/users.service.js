@@ -6,7 +6,7 @@ class UsersService {
   constructor() {}
 
   async create(data) {
-    const newUser = await models.User.create(data);
+    const newUser = await models.User.create(data, {include: ['customer']});
     if (!newUser) {
       throw boom.notAcceptable('No data found to create user');
     } else {
