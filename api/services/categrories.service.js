@@ -30,7 +30,6 @@ class CategoryService {
     } else {
       return category;
     }
-
   }
 
   async update(id, changes) {

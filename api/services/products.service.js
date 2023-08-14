@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const boom = require('@hapi/boom');
 const { models } = require('../libs/sequelize');
 
@@ -14,8 +15,24 @@ class ProductsService {
     }
   }
 
-  async show () {
-    const products = await models.Product.findAll({include: ['category']});
+  async show (query) {
+    const options = {
+      include: ["category"],
+      where: {}
+    }
+    const { limit, offset, price, price_min, price_max } = query;
+    if (limit && offset) {
+      options.limit = limit;
+      options.offset = offset
+    } else if (price) {
+      options.where.price = price;
+    } else if (price_min && price_max) {
+      options.where.price = {
+        [Op.gte]: price_min,
+        [Op.lte]: price_max
+      }
+    }
+    const products = await models.Product.findAll(options);
     if (!products) {
       throw boom.notFound('No products found');
     } else {
@@ -34,21 +51,13 @@ class ProductsService {
 
   async update (id, changes) {
     const product = await this.find(id);
-    if (!product) {
-      throw boom.notFound('Product not found')
-    } else {
-      const newProduct = await product.update(changes);
-      return newProduct;
-    }
+    const newProduct = await product.update(changes);
+    return newProduct;
   }
 
     async delete (id) {
       const product = await this.find(id);
-      if (!product) {
-        throw boom.notFound('Product not found')
-      } else {
-          await product.destroy();
-      }
+      await product.destroy();
       return { id };
     }
   }

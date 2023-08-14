@@ -24,22 +24,14 @@ class CustomerService {
 
   async update(id, changes) {
     const customer = await this.find(id);
-    if (!customer) {
-      throw boom.notFound('Customer not found');
-    } else {
-      const newInfo = await customer.update(changes);
-      return {id, newInfo};
-    }
+    const newInfo = await customer.update(changes);
+    return {id, newInfo};
   }
 
   async delete(id) {
     const customer = await this.find(id);
-    if (!customer) {
-      throw boom.notFound('Customer not found');
-    } else {
-      await customer.destroy();
-      return id;
-    }
+    await customer.destroy();
+    return id;
   }
 }
 
