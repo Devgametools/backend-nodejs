@@ -23,7 +23,7 @@ const categorySchema = {
   modifiedAt: {
     allowNull: true,
     type: DataTypes.DATE,
-    field: 'modified_at',
+    field: 'modified_at'
   }
 }
 

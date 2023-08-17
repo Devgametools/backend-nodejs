@@ -16,8 +16,8 @@ class CategoryService {
 
   async show() {
     const categories = await models.Category.findAll();
-    if (!categories) {
-      throw boom.notFound('No products found');
+    if (categories.length === 0) {
+      throw boom.notFound('No categories found');
     } else {
       return categories;
     }
@@ -34,12 +34,15 @@ class CategoryService {
 
   async update(id, changes) {
     const category = await this.find(parseInt(id));
-    const newCategory = await category.update(changes);
-    return newCategory
+    category.set({modifiedAt: Date.now()});
+    await category.save();
+    await category.update(changes);
+    return category
   }
 
+
   async delete(id) {
-    const category = await this.find(parseInt(id));
+    const category = await this.find(id);
     await category.destroy();
     return id;
   }

@@ -1,5 +1,6 @@
 const { Model, DataTypes, Sequelize } = require('sequelize');
 const { CUSTOMER_TABLE } = require('./customer.model');
+const bcrypt = require('bcryptjs');
 
 const USER_TABLE = 'users';
 
@@ -40,6 +41,11 @@ const userSchema = {
     type: DataTypes.DATE,
     field: 'created_at',
     defaultValue: Sequelize.NOW,
+  },
+  modifiedAt: {
+    allowNull: true,
+    type: DataTypes.DATE,
+    field: 'modified_at',
   }
 }
 
@@ -53,7 +59,17 @@ class User extends Model {
       sequelize,
       tableName: USER_TABLE,
       modelName: 'User',
-      timestamps: false
+      timestamps: false,
+      hooks: {
+        beforeCreate: async (user) => {
+          const password = await bcrypt.hash(user.password, 10);
+          user.password = password;
+        }/*,
+        beforeUpdate: async (user) => {
+          const password = await bcrypt.hash(user.password, 10);
+          user.password = password;
+        }*/
+      }
     }
   }
 }

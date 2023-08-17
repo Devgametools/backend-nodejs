@@ -39,8 +39,8 @@ async function findUser(req, res, next) {
 async function createUser(req, res, next) {
   try {
     const body = req.body;
-    await service.create(body);
-    res.status(201).json({ message: 'User created successfully', body });
+    const newUser = await service.create(body);
+    res.status(201).json({ message: 'User created successfully', newUser });
   } catch (error) {
     next(error)
   }
@@ -50,8 +50,8 @@ async function updateUser (req, res, next) {
   try {
     const { username } = req.params;
     const body = req.body;
-    await service.update(username, body);
-    res.status(202).json({ message: 'User updated successfully', body });
+    const user = await service.update(username, body);
+    res.status(202).json({ message: 'User updated successfully', user });
   } catch (error) {
     next(error);
   }

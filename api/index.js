@@ -3,6 +3,7 @@ const cors = require('cors');
 const routerApi = require('./routes');
 const app = express();
 const { logErrors, errorHandler, boomErrorHandler, sqlErrorHandler } = require('./middlewares/error.handler');
+const { checkApiKey } = require('./middlewares/auth.handler');
 
 const port = process.env.PORT || 3000;
 
@@ -20,8 +21,14 @@ const options = {
 }
 app.use(cors(options));
 
+require('./utils/auth');
+
 app.get('/', (req, res) => {
   res.send('Hello World, Main page - Server in ExpressJS');
+})
+
+app.get('/prueba', checkApiKey, (req, res) => {
+  res.send('Welcome to API of Baby Store by Emma');
 })
 
 app.get('/api', (req, res) => {

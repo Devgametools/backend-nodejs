@@ -60,7 +60,7 @@ async function updateCategory (req, res, next) {
 async function deleteCategory (req, res, next) {
   try {
     const { id } = req.params;
-    await service.delete(id);
+    await service.delete(parseInt(id));
     res.status(201).json({message: 'Category deleted successfully', id});
   } catch (error) {
     next(error);

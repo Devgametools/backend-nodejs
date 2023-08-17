@@ -2,15 +2,15 @@ const Joi = require('joi');
 
 const id = Joi.number().integer();
 const name = Joi.string().min(3).max(15);
-const modifiedAt = Joi.function()
+const modifiedAt = Joi.date();
 
 const createCategorySchema = Joi.object({
   name: name.required(),
 });
 
 const updateCategorySchema = Joi.object({
-  name: name,
-  modifiedAt: modifiedAt
+  name,
+  modifiedAt
 });
 
 const getCategorySchema = Joi.object({

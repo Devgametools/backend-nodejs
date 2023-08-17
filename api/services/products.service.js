@@ -20,16 +20,21 @@ class ProductsService {
       include: ["category"],
       where: {}
     }
-    const { limit, offset, price, price_min, price_max } = query;
-    if (limit && offset) {
+    const { limit, offset, price_min, price_max } = query;
+    if (limit > 0 && offset) {
       options.limit = limit;
       options.offset = offset
-    } else if (price) {
-      options.where.price = price;
-    } else if (price_min && price_max) {
+    } else if (price_min > 0 && price_max == 0) {
       options.where.price = {
         [Op.gte]: price_min,
+      }
+    } else if (price_min == 0 && price_max > 0) {
+      options.where.price = {
         [Op.lte]: price_max
+      }
+    } else if (price_min > 0 && price_max > 0) {
+      options.where.price = {
+        [Op.between]: [price_min, price_max]
       }
     }
     const products = await models.Product.findAll(options);
