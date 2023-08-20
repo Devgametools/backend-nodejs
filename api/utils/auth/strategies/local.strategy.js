@@ -14,27 +14,41 @@ const LocalStrategy = new Strategy(
     try {
       const user = await service.userLogin(identifier);
       if (!user) {
-        const user = await service.emailLogin(identifier);
-        if (!user) {
+        const customer = await service.emailLogin(identifier);
+        if (!customer) {
           done(boom.unauthorized('User not found'));
         } else {
-          const validatePassword = await bcrypt.compare(password, user.user.password);
-          if (!validatePassword) {
-            done(boom.unauthorized('Invalid Password'), false);
+          if (customer.user.status === 'inactive') {
+            done(boom.unauthorized('User Inactive'));
           } else {
-            delete user.user.dataValues.password;
-            done(null, user);
+            const validatePassword = await bcrypt.compare(
+              password,
+              customer.user.password,
+            );
+            if (!validatePassword) {
+              done(boom.unauthorized('Invalid Password'), false);
+            } else {
+              delete customer.user.dataValues.password;
+              done(null, customer);
+            }
           }
         }
       } else {
-        const validatePassword = await bcrypt.compare(password, user.password);
-        if (!validatePassword) {
-          done(boom.unauthorized('Invalid Password'), false);
+        if (user.status === 'inactive') {
+          done(boom.unauthorized('User Inactive'));
         } else {
-           delete user.dataValues.password;
-           done(null, user);
+          const validatePassword = await bcrypt.compare(
+            password,
+            user.password,
+          );
+          if (!validatePassword) {
+            done(boom.unauthorized('Invalid Password'), false);
+          } else {
+            delete user.dataValues.password;
+            done(null, user);
           }
         }
+      }
     } catch (error) {
       done(error, false);
     }

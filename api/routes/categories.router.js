@@ -1,7 +1,10 @@
 const express = require('express');
+const passport = require('passport');
+//const boom = require('@hapi/boom');
 
 const CategoryService = require('../services/categrories.service');
 const validatorHandler = require('./../middlewares/validator.handler');
+const { checkRoles } = require('../middlewares/auth.handler');
 const { createCategorySchema, updateCategorySchema, getCategorySchema } = require('./../schemas/category.schema');
 
 const router = express.Router();
@@ -9,9 +12,9 @@ const service = new CategoryService();
 
 router.get('/', getCategories);
 router.get('/:id', validatorHandler(getCategorySchema, 'params'), getCategory);
-router.post('/', validatorHandler(createCategorySchema, 'body'), createCategory);
-router.patch('/:id', validatorHandler(getCategorySchema, 'params'), validatorHandler(updateCategorySchema, 'body'), updateCategory);
-router.delete('/:id', validatorHandler(getCategorySchema, 'params'), deleteCategory);
+router.post('/', passport.authenticate('jwt', {session: false}), checkRoles('sysadmin'), validatorHandler(createCategorySchema, 'body'), createCategory);
+router.patch('/:id', passport.authenticate('jwt', {session: false}), checkRoles('sysadmin'), validatorHandler(getCategorySchema, 'params'), validatorHandler(updateCategorySchema, 'body'), updateCategory);
+router.delete('/:id', passport.authenticate('jwt', {session: false}), checkRoles('sysadmin'), validatorHandler(getCategorySchema, 'params'), deleteCategory);
 
 
 // ************************************************************************************
@@ -43,6 +46,7 @@ async function createCategory (req, res, next) {
     res.status(201).json({message: 'Category created successfully', newCategory});
   } catch (error) {
     next(error);
+
   }
 }
 
