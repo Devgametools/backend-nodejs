@@ -1,5 +1,6 @@
 const { Model, DataTypes, Sequelize } = require('sequelize');
 const { CUSTOMER_TABLE } = require('../models/customer.model');
+const { ADDRESS_TABLE } = require('./addresses.model');
 
 const ORDER_TABLE = 'orders';
 
@@ -8,7 +9,8 @@ const orderSchema = {
     allowNull: false,
     autoIncrement: true,
     primaryKey: true,
-    type: DataTypes.INTEGER
+    type: DataTypes.INTEGER,
+    unique: true
   },
   customerId: {
     field: 'customer_id',
@@ -21,14 +23,27 @@ const orderSchema = {
     onUpdate: 'CASCADE',
     onDelete: 'SET NULL'
   },
-  location: {
+  shippingAddress: {
+    field: 'shipping_address',
     allowNull: false,
-    type: DataTypes.STRING
+    type: DataTypes.INTEGER,
+    references: {
+      model: ADDRESS_TABLE,
+      key: 'id'
+    },
+    onUpdate: 'CASCADE',
+    onDelete: 'SET NULL'
   },
-  status: {
+  orderStatus: {
+    field: 'order_status',
     allowNull: false,
     type: DataTypes.STRING,
-    defaultValue: 'pending'
+  },
+  paymentStatus: {
+    field: 'payment_status',
+    allowNull: false,
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
   },
   createdAt: {
     allowNull: false,
@@ -40,7 +55,7 @@ const orderSchema = {
     allowNull: true,
     type: DataTypes.DATE,
     field: 'modified_at',
-  }/*,
+  },
   total: {
     type: DataTypes.VIRTUAL,
     get() {
@@ -51,7 +66,7 @@ const orderSchema = {
       }
       return 0;
     }
-  }*/
+  }
 }
 
 
@@ -65,6 +80,13 @@ class Order extends Model {
       through: models.OrderProduct,
       foreignKey: 'orderId',
       otherKey: 'productId'
+    });
+    this.belongsTo(models.Address, {
+      as: 'address'
+    });
+    this.hasOne(models.Payment, {
+      as: 'payment',
+      foreignKey: 'orderId'
     })
   }
 

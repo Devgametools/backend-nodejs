@@ -9,7 +9,8 @@ const orderProductSchema = {
     allowNull: false,
     autoIncrement: true,
     primaryKey: true,
-    type: DataTypes.INTEGER
+    type: DataTypes.INTEGER,
+    unique: true
   },
   orderId: {
     field: 'order_id',
@@ -22,7 +23,7 @@ const orderProductSchema = {
     onUpdate: 'CASCADE',
     onDelete: 'SET NULL'
   },
-  amount: {
+  quantity: {
     allowNull: false,
     type: DataTypes.INTEGER
   },

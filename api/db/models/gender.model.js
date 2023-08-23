@@ -1,8 +1,8 @@
 const { Model, DataTypes } = require('sequelize');
 
-const CATEGORY_TABLE = 'categories';
+const GENDER_TABLE = 'gender';
 
-const categorySchema = {
+const genderSchema = {
   id: {
     allowNull: false,
     type: DataTypes.INTEGER,
@@ -17,22 +17,22 @@ const categorySchema = {
   }
 }
 
-class Category extends Model {
+class Gender extends Model {
   static associate(models) {
     this.hasMany(models.Product, {
       as: 'products',
-      foreignKey: 'categoryId'
+      foreignKey: 'genderId'
     });
   }
 
     static config(sequelize) {
       return {
         sequelize,
-        tableName: CATEGORY_TABLE,
-        modelName: 'Category',
+        tableName: GENDER_TABLE,
+        modelName: 'Gender',
         timestamps: false
       }
     }
 }
 
-module.exports = { Category, categorySchema, CATEGORY_TABLE };
+module.exports = { Gender, genderSchema, GENDER_TABLE };

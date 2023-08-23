@@ -1,8 +1,8 @@
 const { Model, DataTypes } = require('sequelize');
 
-const CATEGORY_TABLE = 'categories';
+const TARGET_TABLE = 'target';
 
-const categorySchema = {
+const targetSchema = {
   id: {
     allowNull: false,
     type: DataTypes.INTEGER,
@@ -17,22 +17,22 @@ const categorySchema = {
   }
 }
 
-class Category extends Model {
+class Target extends Model {
   static associate(models) {
     this.hasMany(models.Product, {
       as: 'products',
-      foreignKey: 'categoryId'
+      foreignKey: 'targetId'
     });
   }
 
     static config(sequelize) {
       return {
         sequelize,
-        tableName: CATEGORY_TABLE,
-        modelName: 'Category',
+        tableName: TARGET_TABLE,
+        modelName: 'Target',
         timestamps: false
       }
     }
 }
 
-module.exports = { Category, categorySchema, CATEGORY_TABLE };
+module.exports = { Target, targetSchema, TARGET_TABLE };

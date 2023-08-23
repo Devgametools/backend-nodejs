@@ -1,5 +1,7 @@
-const { Model, DataTypes} = require('sequelize');
+const { Model, DataTypes } = require('sequelize');
 const { CATEGORY_TABLE } = require('./category.model');
+const { GENDER_TABLE } = require('./gender.model');
+const { TARGET_TABLE } = require('./target.model');
 
 const PRODUCT_TABLE = 'products';
 
@@ -8,7 +10,8 @@ const productSchema = {
     primaryKey: true,
     allowNull: false,
     type: DataTypes.INTEGER,
-    autoIncrement: true
+    autoIncrement: true,
+    unique: true
   },
   name: {
     allowNull: false,
@@ -20,11 +23,11 @@ const productSchema = {
   },
   price: {
     allowNull: false,
-    type: DataTypes.DOUBLE
+    type: DataTypes.DOUBLE,
   },
   stock: {
     allowNull: false,
-    type: DataTypes.INTEGER
+    type: DataTypes.INTEGER,
   },
   categoryId: {
     field: 'category_id',
@@ -32,29 +35,53 @@ const productSchema = {
     type: DataTypes.INTEGER,
     references: {
       model: CATEGORY_TABLE,
-      key: 'id'
+      key: 'id',
     },
     onUpdate: 'CASCADE',
     onDelete: 'SET NULL'
+  },
+  targetId: {
+    field: 'target_id',
+    allowNull: false,
+    type: DataTypes.INTEGER,
+    references: {
+      model: TARGET_TABLE,
+      key: 'id',
     },
+    onUpdate: 'CASCADE',
+    onDelete: 'SET NULL'
+  },
+  gendertId: {
+    field: 'gender_id',
+    allowNull: false,
+    type: DataTypes.INTEGER,
+    references: {
+      model: GENDER_TABLE,
+      key: 'id',
+    },
+    onUpdate: 'CASCADE',
+    onDelete: 'SET NULL'
+  },
   images: {
     allowNull: true,
-    type: DataTypes.ARRAY(DataTypes.STRING)
-  }
-}
+    type: DataTypes.ARRAY(DataTypes.STRING),
+  },
+};
 
 class Product extends Model {
-  static associate (models) {
-    this.belongsTo(models.Category, {as: 'category'});
+  static associate(models) {
+    this.belongsTo(models.Category, { as: 'category' });
+    this.belongsTo(models.Target, { as: 'target' });
+    this.belongsTo(models.Gender, { as: 'gender' });
   }
 
-  static config (sequelize) {
+  static config(sequelize) {
     return {
       sequelize,
       tableName: PRODUCT_TABLE,
       modelName: 'Product',
-      timestamps: false
-    }
+      timestamps: false,
+    };
   }
 }
 
