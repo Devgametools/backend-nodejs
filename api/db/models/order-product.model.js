@@ -23,10 +23,6 @@ const orderProductSchema = {
     onUpdate: 'CASCADE',
     onDelete: 'SET NULL'
   },
-  quantity: {
-    allowNull: false,
-    type: DataTypes.INTEGER
-  },
   productId: {
     field: 'product_id',
     allowNull: false,
@@ -37,6 +33,10 @@ const orderProductSchema = {
     },
     onUpdate: 'CASCADE',
     onDelete: 'SET NULL'
+  },
+  quantity: {
+    allowNull: false,
+    type: DataTypes.INTEGER
   },
   createdAt: {
     allowNull: false,

@@ -38,6 +38,7 @@ const orderSchema = {
     field: 'order_status',
     allowNull: false,
     type: DataTypes.STRING,
+    defaultValue: 'requested'
   },
   paymentStatus: {
     field: 'payment_status',

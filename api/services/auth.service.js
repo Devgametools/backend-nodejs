@@ -58,24 +58,31 @@ class AuthService {
   //******************************************************************************** */
 
   async signToken(user) {
-    if (!user.username) {
-      const customer = await service.emailLogin(user.email);
-      const payload = {
-        sub: customer.user.username,
-        role: customer.user.role,
-        cid: customer.id,
-      };
-      const token = jwt.sign(payload, config.jwtSecret);
-      delete customer.user.dataValues.password;
-      return { customer, token };
-    } else {
-      const payload = {
-        sub: user.username,
-        role: user.role,
-        cid: user.customerId,
-      };
-      const token = jwt.sign(payload, config.jwtSecret);
-      return { user, token };
+    try {
+      if (!user.username) {
+        const customer = await service.emailLogin(user.email);
+        const payload = {
+          sub: customer.user.username,
+          role: customer.user.role,
+          cid: customer.id,
+        };
+        const token = jwt.sign(payload, config.jwtSecret);
+        delete customer.user.dataValues.password;
+        delete customer.user.dataValues.recoveryToken;
+        return token;
+      } else {
+        const payload = {
+          sub: user.username,
+          role: user.role,
+          cid: user.customerId,
+        };
+        const token = jwt.sign(payload, config.jwtSecret);
+        delete user.dataValues.password;
+        delete user.dataValues.recoveryToken;
+        return token;
+      }
+    } catch (error) {
+      boom.unauthorized(error);
     }
   }
 

@@ -10,6 +10,7 @@ class CustomerService {
     if (!customers) {
       throw boom.badRequest('Error');
     } else {
+      customers.map((customer) => {delete customer.user.dataValues.password, delete customer.user.dataValues.recoveryToken});
       return customers;
     }
   }
@@ -19,7 +20,11 @@ class CustomerService {
     if (!customer) {
       throw boom.notFound('Customer not found');
     }
-    return customer;
+    else {
+      delete customer.user.dataValues.password;
+      delete customer.user.dataValues.recoveryToken;
+      return customer;
+    }
   }
 
   async update(id, changes) {

@@ -17,8 +17,8 @@ const { PAYMENT_TABLE, paymentSchema } = require('../models/payment-record.model
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface) {
-    await queryInterface.createTable(ADDRESS_TABLE, addressSchema);
     await queryInterface.createTable(CUSTOMER_TABLE, customerSchema);
+    await queryInterface.createTable(ADDRESS_TABLE, addressSchema);
     await queryInterface.createTable(CATEGORY_TABLE, categorySchema);
     await queryInterface.createTable(TARGET_TABLE, targetSchema);
     await queryInterface.createTable(GENDER_TABLE, genderSchema);

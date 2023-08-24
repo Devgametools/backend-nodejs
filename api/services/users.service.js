@@ -1,5 +1,5 @@
 const boom = require('@hapi/boom');
-//const bcrypt = require('bcryptjs');
+const bcrypt = require('bcryptjs');
 
 const { models } = require('../libs/sequelize');
 
@@ -50,19 +50,27 @@ class UsersService {
 
   async update(username, changes) {
     const user = await this.find(username);
-    user.set({ modifiedAt: Date.now() });
+    user.set({modifiedAt: Date.now()});
     await user.save();
-    const newInfo = await user.update(changes);
-    if (newInfo.password) {
-      delete newInfo.dataValues.password;
-    }
-    return newInfo;
+    await user.update(changes);
+    delete user.dataValues.password;
+    return user;
+  }
+
+  async updatePassword(username, data) {
+    const user = await this.find(username);
+    const newPassword = await bcrypt.hash(data.password, 10);
+    user.set({modifiedAt: Date.now(), password: newPassword});
+    await user.save();
+    delete user.dataValues.password;
+    delete user.dataValues.recoveryToken;
+    return user;
   }
 
   async delete(username) {
     const user = await this.find(username);
     await user.destroy({ include: ['customer'] });
-    return { username };
+    return username;
   }
 }
 

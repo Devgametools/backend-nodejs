@@ -15,7 +15,8 @@ router.post('/change-password', changePassword);
 async function login(req, res, next) {
   try {
     const user = req.user;
-    res.json(service.signToken(user));
+    const token = await service.signToken(user)
+    res.json({user, token});
   } catch (error) {
     next(error);
   }

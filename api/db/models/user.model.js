@@ -1,6 +1,7 @@
 const { Model, DataTypes, Sequelize } = require('sequelize');
-const { CUSTOMER_TABLE } = require('./customer.model');
 const bcrypt = require('bcryptjs');
+const { CUSTOMER_TABLE } = require('./customer.model');
+
 
 const USER_TABLE = 'users';
 
@@ -69,11 +70,7 @@ class User extends Model {
         beforeCreate: async (user) => {
           const password = await bcrypt.hash(user.password, 10);
           user.password = password;
-        }/*,
-        beforeUpdate: async (user) => {
-          const password = await bcrypt.hash(user.password, 10);
-          user.password = password;
-        }*/
+        }
       }
     }
   }
