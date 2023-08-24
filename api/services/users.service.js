@@ -1,17 +1,24 @@
 const boom = require('@hapi/boom');
-const bcrypt = require('bcryptjs');
 
 const { models } = require('../libs/sequelize');
 
 class UsersService {
   constructor() {}
 
+  async hideInfo (data) {
+    delete data.dataValues.password;
+    delete data.dataValues.recoveryToken;
+  }
+
   async show() {
     const data = await models.User.findAll({ include: ['customer'] });
-    data.map((user) => delete user.dataValues.password);
     if (!data) {
       throw boom.notFound('No users found');
-    } else {
+    }
+    else {
+      data.map((user) => {
+        this.hideInfo(user);
+      });
       return data;
     }
   }
@@ -22,15 +29,16 @@ class UsersService {
     });
     if (!user) {
       throw boom.notFound('User not Found');
-    } else {
-      delete user.dataValues.password;
+    }
+    else {
+      this.hideInfo(user);
       return user;
     }
   }
 
   async userLogin(username) {
-    const user = await models.User.findOne({where: { username }, include: ['customer']});
-      return user;
+    const user = await models.User.findOne({where: { username }});
+    return user;
   }
 
   async emailLogin (email) {
@@ -38,38 +46,54 @@ class UsersService {
     return customer;
   }
 
+  async getUser (identifier) {
+    const user = await this.userLogin(identifier);
+    if (!user) {
+      const customer = await this.emailLogin(identifier);
+      if (!customer) {
+        throw boom.notFound('User not found');
+      }
+      else {
+        return customer.user;
+      }
+    }
+    else {
+      return user;
+    }
+  }
+
   async create(data) {
     const newUser = await models.User.create(data, { include: ['customer'] });
     if (!newUser) {
       throw boom.notAcceptable('No data found to create user');
-    } else {
-      delete newUser.dataValues.password;
+    }
+    else {
+      this.hideInfo(newUser);
       return newUser;
     }
   }
 
   async update(username, changes) {
     const user = await this.find(username);
+    await user.update(changes);
     user.set({modifiedAt: Date.now()});
     await user.save();
-    await user.update(changes);
-    delete user.dataValues.password;
+    this.hideInfo(user);
     return user;
   }
 
   async updatePassword(username, data) {
     const user = await this.find(username);
-    const newPassword = await bcrypt.hash(data.password, 10);
-    user.set({modifiedAt: Date.now(), password: newPassword});
+    user.set({modifiedAt: Date.now(), password: data.password});
     await user.save();
-    delete user.dataValues.password;
-    delete user.dataValues.recoveryToken;
+    this.hideInfo(user);
     return user;
   }
 
   async delete(username) {
     const user = await this.find(username);
-    await user.destroy({ include: ['customer'] });
+    await user.destroy();
+    await user.customer.destroy();
     return username;
   }
 }

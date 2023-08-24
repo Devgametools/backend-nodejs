@@ -10,7 +10,7 @@ const LocalStrategy = new Strategy(
   },
   async (identifier, password, done) => {
     try {
-      const user = await service.getUser(identifier, password);
+      const user = await service.validateUser(identifier, password);
       done(null, user);
     } catch (error) {
       done(error, false);

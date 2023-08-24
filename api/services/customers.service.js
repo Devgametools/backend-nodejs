@@ -16,7 +16,7 @@ class CustomerService {
   }
 
   async find(id) {
-    const customer = await models.Customer.findByPk(id);
+    const customer = await models.Customer.findByPk(id, {include: ['user']});
     if (!customer) {
       throw boom.notFound('Customer not found');
     }
@@ -36,6 +36,7 @@ class CustomerService {
   async delete(id) {
     const customer = await this.find(id);
     await customer.destroy();
+    await customer.user.destroy();
     return id;
   }
 }

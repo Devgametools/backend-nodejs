@@ -14,7 +14,10 @@ const userSchema = {
   },
   password: {
     allowNull: false,
-    type: DataTypes.STRING
+    type: DataTypes.STRING,
+    set(value) {
+      this.setDataValue("password", bcrypt.hashSync(value, 10));
+    }
   },
   recoveryToken: {
     field: 'recovery_token',
@@ -66,12 +69,12 @@ class User extends Model {
       tableName: USER_TABLE,
       modelName: 'User',
       timestamps: false,
-      hooks: {
+      /*hooks: {
         beforeCreate: async (user) => {
           const password = await bcrypt.hash(user.password, 10);
           user.password = password;
         }
-      }
+      }*/
     }
   }
 }

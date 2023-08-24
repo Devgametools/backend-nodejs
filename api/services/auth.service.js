@@ -4,47 +4,30 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const { config } = require('../config/config');
 const UserService = require('./users.service');
+
 const service = new UserService();
 
 class AuthService {
-
-  async getUser(identifier, password) {
+  async validateUser(identifier, password) {
     try {
-      const user = await service.userLogin(identifier);
+      const user = await service.getUser(identifier);
       if (!user) {
-        const customer = await service.emailLogin(identifier);
-        if (!customer) {
-          throw boom.unauthorized('User not found');
-        } else {
-          if (customer.user.status === 'inactive') {
-            throw boom.unauthorized('User Inactive');
-          } else {
-            const validatePassword = await bcrypt.compare(
-              password,
-              customer.user.password,
-            );
-            if (!validatePassword) {
-              throw boom.unauthorized('Invalid Password');
-            } else {
-              delete customer.user.dataValues.password;
-              delete customer.user.dataValues.recoveryToken;
-              return customer;
-            }
-          }
-        }
-      } else {
+        throw boom.unauthorized('User not found');
+      }
+      else {
         if (user.status === 'inactive') {
           throw boom.unauthorized('User Inactive');
-        } else {
+        }
+        else {
           const validatePassword = await bcrypt.compare(
             password,
             user.password,
           );
           if (!validatePassword) {
             throw boom.unauthorized('Invalid Password');
-          } else {
-            delete user.dataValues.password;
-            delete user.dataValues.recoveryToken;
+          }
+          else {
+            service.hideInfo(user);
             return user;
           }
         }
@@ -67,8 +50,7 @@ class AuthService {
           cid: customer.id,
         };
         const token = jwt.sign(payload, config.jwtSecret);
-        delete customer.user.dataValues.password;
-        delete customer.user.dataValues.recoveryToken;
+        service.hideInfo(customer.user);
         return token;
       } else {
         const payload = {
@@ -77,8 +59,7 @@ class AuthService {
           cid: user.customerId,
         };
         const token = jwt.sign(payload, config.jwtSecret);
-        delete user.dataValues.password;
-        delete user.dataValues.recoveryToken;
+        service.hideInfo(user);
         return token;
       }
     } catch (error) {
@@ -89,24 +70,24 @@ class AuthService {
   //******************************************************************************** */
   //******************************************************************************** */
 
-  async sendMail (info) {
+  async sendMail(info) {
     const transporter = nodemailer.createTransport({
       host: config.mailServer,
       secure: true,
       port: 465,
       auth: {
         user: config.mailUser,
-        pass: config.mailPassword
-      }
+        pass: config.mailPassword,
+      },
     });
     await transporter.sendMail(info);
     return;
   }
 
-    //******************************************************************************** */
-   //******************************************************************************** */
+  //******************************************************************************** */
+  //******************************************************************************** */
 
-   async sendRecovery (identifier) {
+  async sendRecovery(identifier) {
     const customer = await service.emailLogin(identifier);
     if (!customer) {
       const user = await service.userLogin(identifier);
@@ -114,11 +95,11 @@ class AuthService {
         throw boom.unauthorized();
       } else {
         const payload = {
-          sub: user.username
+          sub: user.username,
         };
         const token = jwt.sign(payload, config.jwtSecret);
         const link = `http://localhost:3000/api/v1/auth/recovery?token=${token}`;
-        await service.update(user.username, {recoveryToken: token});
+        await service.update(user.username, { recoveryToken: token });
         const info = {
           from: config.mailUser,
           to: user.customer.email,
@@ -126,15 +107,15 @@ class AuthService {
           html: `<b>Hola estimado ${user.customer.name}, haz click en este link para recuperar tu contrasena: ${link}</b>`,
         };
         await this.sendMail(info);
-        return {message:"Recovery email has been sent"};
+        return { message: 'Recovery email has been sent' };
       }
     } else {
       const payload = {
-        sub: customer.user.username
+        sub: customer.user.username,
       };
       const token = jwt.sign(payload, config.jwtSecret);
       const link = `http://localhost:3000/api/v1/auth/recovery?token=${token}`;
-      await service.update(customer.user.username, {recoveryToken: token});
+      await service.update(customer.user.username, { recoveryToken: token });
       const info = {
         from: config.mailUser,
         to: customer.email,
@@ -142,29 +123,23 @@ class AuthService {
         html: `<b>Hola estimado ${customer.name}, haz click en este link para recuperar tu contrasena: ${link}</b>`,
       };
       await this.sendMail(info);
-      return {message:"Recovery email has been sent"};
+      return { message: 'Recovery email has been sent' };
     }
-   }
+  }
 
-      //******************************************************************************** */
-      //******************************************************************************** */
+  //******************************************************************************** */
+  //******************************************************************************** */
 
-      async changePassword (token, newPassword) {
-        try {
-          const payload = jwt.verify(token, config.jwtSecret);
-          const user = await service.find(payload.sub);
-          if (user.recoveryToken !== token) {
-            throw boom.unauthorized();
-          } else {
-            const encrypted = await bcrypt.hash(newPassword, 10);
-            await service.update(user.username, {recoveryToken: null, password: encrypted});
-            return {message: 'Password has been changed succesfully'};
-          }
-        } catch (error) {
-          throw boom.unauthorized(error);
-        }
-      }
-
+  async changePassword(identifier, newPassword) {
+    try {
+      const user = await service.find(identifier);
+      await service.update(user.username, { recoveryToken: null });
+      await service.updatePassword(user.username, { password: newPassword });
+      return { message: 'Password has been changed succesfully' };
+    } catch (error) {
+      throw boom.unauthorized(error);
+    }
+  }
 }
 
 module.exports = AuthService;

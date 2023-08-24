@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.post('/login', passport.authenticate('local', {session: false}), login);
 router.post('/recovery', recover);
-router.post('/change-password', changePassword);
+router.post('/change-password/:username', passport.authenticate('jwt', {session: false}), changePassword);
 
 // ************************************************************************************
 // ************************************************************************************
@@ -15,7 +15,7 @@ router.post('/change-password', changePassword);
 async function login(req, res, next) {
   try {
     const user = req.user;
-    const token = await service.signToken(user)
+    const token = await service.signToken(user);
     res.json({user, token});
   } catch (error) {
     next(error);
@@ -33,8 +33,8 @@ async function recover (req, res, next) {
 
 async function changePassword (req, res, next) {
   try {
-    const { token, newPassword } = req.body;
-    res.json(service.changePassword(token, newPassword));
+    const { identifier, newPassword } = req.body;
+    res.json(service.changePassword(identifier, newPassword));
   } catch (error) {
     next(error)
   }
