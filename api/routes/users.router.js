@@ -3,30 +3,53 @@ const passport = require('passport');
 const router = express.Router();
 const UsersService = require('../services/users.service');
 const validatorHandler = require('../middlewares/validator.handler');
-const { createUserSchema, updateUserSchema, getUserSchema, updatePasswordSchema } = require('../schemas/users.schema');
+//const { checkRoles } = require('../middlewares/auth.handler');
+const {
+  createUserSchema,
+  updateUserSchema,
+  getUserSchema,
+  updatePasswordSchema,
+} = require('../schemas/users.schema');
 
 const service = new UsersService();
 
+router.get(
+  '/:username',
+  passport.authenticate('jwt', { session: false }),
+  validatorHandler(getUserSchema, 'params'),
+  findUser,
+);
 
-router.get('/', getUsers);
-router.get('/:username', validatorHandler(getUserSchema, 'params'), findUser);
 router.post('/', validatorHandler(createUserSchema, 'body'), createUser);
-router.patch('/:username', validatorHandler(getUserSchema, 'params'), validatorHandler(updateUserSchema, 'body'), updateUser);
-router.patch('/update-password/:username', passport.authenticate('jwt', {session: false}), validatorHandler(getUserSchema, 'params'), validatorHandler(updatePasswordSchema, 'body'), updatePassword);
-router.put('/:username', validatorHandler(getUserSchema, 'params'), validatorHandler(updateUserSchema, 'body'), updateUser);
-router.delete('/:username', validatorHandler(getUserSchema, 'params'), deleteUser);
+router.patch(
+  '/:username',
+  passport.authenticate('jwt', { session: false }),
+  validatorHandler(getUserSchema, 'params'),
+  validatorHandler(updateUserSchema, 'body'),
+  updateUser,
+);
+router.patch(
+  '/update-password/:username',
+  passport.authenticate('jwt', { session: false }),
+  validatorHandler(getUserSchema, 'params'),
+  validatorHandler(updatePasswordSchema, 'body'),
+  updatePassword,
+);
+router.put(
+  '/:username',
+  passport.authenticate('jwt', { session: false }),
+  validatorHandler(getUserSchema, 'params'),
+  validatorHandler(updateUserSchema, 'body'),
+  updateUser,
+);
+router.delete(
+  '/:username',
+  validatorHandler(getUserSchema, 'params'),
+  deleteUser,
+);
 
 // ************************************************************************************
 // ************************************************************************************
-
-async function getUsers(req, res, next) {
-  try {
-    const users = await service.show();
-    res.status(200).json(users);
-  } catch (error) {
-    next(error);
-  }
-}
 
 async function findUser(req, res, next) {
   try {
@@ -44,11 +67,11 @@ async function createUser(req, res, next) {
     const newUser = await service.create(body);
     res.status(201).json({ message: 'User created successfully', newUser });
   } catch (error) {
-    next(error)
+    next(error);
   }
 }
 
-async function updateUser (req, res, next) {
+async function updateUser(req, res, next) {
   try {
     const { username } = req.params;
     const body = req.body;
@@ -59,18 +82,18 @@ async function updateUser (req, res, next) {
   }
 }
 
-async function updatePassword (req, res, next) {
+async function updatePassword(req, res, next) {
   try {
     const { username } = req.params;
     const body = req.body;
     const user = await service.updatePassword(username, body);
-    res.status(202).json({message: 'Password changed successfully', user});
+    res.status(202).json({ message: 'Password changed successfully', user });
   } catch (error) {
     next(error);
   }
 }
 
-async function deleteUser (req, res, next) {
+async function deleteUser(req, res, next) {
   try {
     const { username } = req.params;
     await service.delete(username);

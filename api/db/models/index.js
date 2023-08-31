@@ -1,3 +1,4 @@
+const { Admin, adminSchema } = require('./admins.model');
 const { Product, productSchema } = require('./product.model');
 const { Category, categorySchema } = require('./category.model');
 const { Target, targetSchema } = require('./target.model');
@@ -11,7 +12,8 @@ const { Order, orderSchema } = require('./order.model');
 const { OrderProduct, orderProductSchema } = require('./order-product.model');
 const { Payment, paymentSchema } = require('./payment-record.model');
 
-function setupModels (sequelize) {
+function setupModels(sequelize) {
+  Admin.init(adminSchema, Admin.config(sequelize));
   Product.init(productSchema, Product.config(sequelize));
   User.init(userSchema, User.config(sequelize));
   Order.init(orderSchema, Order.config(sequelize));
@@ -36,7 +38,6 @@ function setupModels (sequelize) {
   Order.associate(sequelize.models);
   Payment.associate(sequelize.models);
   Cart.associate(sequelize.models);
-
 }
 
 module.exports = setupModels;
