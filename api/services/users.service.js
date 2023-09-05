@@ -5,7 +5,7 @@ const { models } = require('../libs/sequelize');
 class UsersService {
   constructor() {}
 
-  async hideInfo (data) {
+  async hideInfo(data) {
     delete data.dataValues.password;
     delete data.dataValues.recoveryToken;
   }
@@ -14,8 +14,7 @@ class UsersService {
     const data = await models.User.findAll({ include: ['customer'] });
     if (!data) {
       throw boom.notFound('No users found');
-    }
-    else {
+    } else {
       data.map((user) => {
         this.hideInfo(user);
       });
@@ -29,35 +28,35 @@ class UsersService {
     });
     if (!user) {
       throw boom.notFound('User not Found');
-    }
-    else {
+    } else {
       this.hideInfo(user);
       return user;
     }
   }
 
   async userLogin(username) {
-    const user = await models.User.findOne({where: { username }});
+    const user = await models.User.findOne({ where: { username } });
     return user;
   }
 
-  async emailLogin (email) {
-    const customer = await models.Customer.findOne({where: { email }, include: ['user']});
+  async emailLogin(email) {
+    const customer = await models.Customer.findOne({
+      where: { email },
+      include: ['user'],
+    });
     return customer;
   }
 
-  async getUser (identifier) {
+  async getUser(identifier) {
     const user = await this.userLogin(identifier);
     if (!user) {
       const customer = await this.emailLogin(identifier);
       if (!customer) {
         throw boom.notFound('User not found');
-      }
-      else {
+      } else {
         return customer.user;
       }
-    }
-    else {
+    } else {
       return user;
     }
   }
@@ -66,8 +65,7 @@ class UsersService {
     const newUser = await models.User.create(data, { include: ['customer'] });
     if (!newUser) {
       throw boom.notAcceptable('No data found to create user');
-    }
-    else {
+    } else {
       this.hideInfo(newUser);
       return newUser;
     }
@@ -76,7 +74,7 @@ class UsersService {
   async update(username, changes) {
     const user = await this.find(username);
     await user.update(changes);
-    user.set({modifiedAt: Date.now()});
+    user.set({ modifiedAt: Date.now() });
     await user.save();
     this.hideInfo(user);
     return user;
@@ -84,17 +82,10 @@ class UsersService {
 
   async updatePassword(username, data) {
     const user = await this.find(username);
-    user.set({modifiedAt: Date.now(), password: data.password});
+    user.set({ modifiedAt: Date.now(), password: data.password });
     await user.save();
     this.hideInfo(user);
     return user;
-  }
-
-  async delete(username) {
-    const user = await this.find(username);
-    await user.destroy();
-    await user.customer.destroy();
-    return username;
   }
 }
 

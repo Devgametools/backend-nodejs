@@ -10,13 +10,17 @@ const {
   boomErrorHandler,
   sqlErrorHandler,
 } = require('./middlewares/error.handler');
-const { checkApiKey } = require('./middlewares/auth.handler');
 
 const port = config.port || 3000;
 
 app.use(express.json());
 
-const whiteList = ['http://localhost:8080', 'http://localhost:3715'];
+const whiteList = [
+  'http://localhost:8080',
+  'http://localhost:3715',
+  'http://localhost:3000',
+  'http://localhost:3001',
+];
 const options = {
   origin: (origin, callback) => {
     if (whiteList.includes(origin) || !origin) {
@@ -29,18 +33,6 @@ const options = {
 app.use(cors(options));
 
 require('./utils/auth');
-
-app.get('/', (req, res) => {
-  res.send('Hello World, Main page - Server in ExpressJS');
-});
-
-app.get('/prueba', checkApiKey, (req, res) => {
-  res.send('Welcome to API of Baby Store by Emma');
-});
-
-app.get('/api', (req, res) => {
-  res.send('Welcome to API of Baby Store by Emma');
-});
 
 routerApi(app);
 

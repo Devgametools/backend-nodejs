@@ -1,37 +1,37 @@
 const express = require('express');
 
-const CategoryService = require('../services/categrories.service');
+const TargetService = require('../services/target.service');
 const validatorHandler = require('./../middlewares/validator.handler');
-const { getCategorySchema } = require('./../schemas/category.schema');
+const { getTargetSchema } = require('./../schemas/target.schema');
 
 const router = express.Router();
-const service = new CategoryService();
+const service = new TargetService();
 
 // ************************************************************************************
 //  *-- ROUTES --*
 // ************************************************************************************
 
-router.get('/', getCategories);
-router.get('/:id', validatorHandler(getCategorySchema, 'params'), getCategory);
+router.get('/', getTargets);
+router.get('/:id', validatorHandler(getTargetSchema, 'params'), getTarget);
 
 // ************************************************************************************
-//  *-- CATEGORY FUNCTIONS--*
+//  *-- GENDER FUNCTIONS--*
 // ************************************************************************************
 
-async function getCategories(req, res, next) {
+async function getTargets(req, res, next) {
   try {
-    const categories = await service.show();
-    res.json(categories);
+    const targets = await service.show();
+    res.json(targets);
   } catch (error) {
     next(error);
   }
 }
 
-async function getCategory(req, res, next) {
+async function getTarget(req, res, next) {
   try {
     const { id } = req.params;
-    const category = await service.find(id);
-    res.json(category);
+    const target = await service.find(id);
+    res.json(target);
   } catch (error) {
     next(error);
   }

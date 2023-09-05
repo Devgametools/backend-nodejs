@@ -2,17 +2,7 @@ const boom = require('@hapi/boom');
 const { models } = require('../libs/sequelize');
 
 class CategoryService {
-
-  constructor(){}
-
-  async create(data) {
-    const newCategory = await models.Category.create(data);
-    if (!newCategory) {
-      throw boom.badData('No data found to create new Category');
-    } else {
-      return newCategory;
-    }
-  }
+  constructor() {}
 
   async show() {
     const categories = await models.Category.findAll();
@@ -31,22 +21,6 @@ class CategoryService {
       return category;
     }
   }
-
-  async update(id, changes) {
-    const category = await this.find(parseInt(id));
-    category.set({modifiedAt: Date.now()});
-    await category.save();
-    await category.update(changes);
-    return category
-  }
-
-
-  async delete(id) {
-    const category = await this.find(id);
-    await category.destroy();
-    return id;
-  }
-
 }
 
 module.exports = CategoryService;

@@ -2,20 +2,38 @@ const express = require('express');
 const router = express.Router();
 const OrdersService = require('../services/order.service');
 const validatorHandler = require('../middlewares/validator.handler');
-const { createOrderSchema, updateOrderSchema, getOrderSchema, addItemSchema } = require('../schemas/order.schema');
+const {
+  createOrderSchema,
+  updateOrderSchema,
+  getOrderSchema,
+  addItemSchema,
+} = require('../schemas/order.schema');
 
 const service = new OrdersService();
 
+// ************************************************************************************
+//  *-- ROUTES --*
+// ************************************************************************************
 
 router.get('/', getOrders);
+
 router.get('/:id', validatorHandler(getOrderSchema, 'params'), findOrder);
+
 router.post('/', validatorHandler(createOrderSchema, 'body'), createOrder);
+
 router.post('/add-item', validatorHandler(addItemSchema, 'body'), createItem);
-router.patch('/:id', validatorHandler(getOrderSchema, 'params'), validatorHandler(updateOrderSchema, 'body'), updateOrder);
-router.put('/:id', validatorHandler(getOrderSchema, 'params'), validatorHandler(updateOrderSchema, 'body'), updateOrder);
+
+router.patch(
+  '/:id',
+  validatorHandler(getOrderSchema, 'params'),
+  validatorHandler(updateOrderSchema, 'body'),
+  updateOrder,
+);
+
 router.delete('/:id', validatorHandler(getOrderSchema, 'params'), deleteOrder);
 
 // ************************************************************************************
+//  *-- ORDER FUNCTIONS --*
 // ************************************************************************************
 
 async function getOrders(req, res, next) {
@@ -43,7 +61,7 @@ async function createOrder(req, res, next) {
     await service.create(body);
     res.status(201).json({ message: 'Order created successfully', body });
   } catch (error) {
-    next(error)
+    next(error);
   }
 }
 
@@ -53,11 +71,11 @@ async function createItem(req, res, next) {
     await service.addItem(body);
     res.status(201).json({ message: 'Order created successfully', body });
   } catch (error) {
-    next(error)
+    next(error);
   }
 }
 
-async function updateOrder (req, res, next) {
+async function updateOrder(req, res, next) {
   try {
     const { id } = req.params;
     const body = req.body;
@@ -68,7 +86,7 @@ async function updateOrder (req, res, next) {
   }
 }
 
-async function deleteOrder (req, res, next) {
+async function deleteOrder(req, res, next) {
   try {
     const { id } = req.params;
     await service.delete(parseInt(id));

@@ -11,7 +11,7 @@ const productSchema = {
     allowNull: false,
     type: DataTypes.INTEGER,
     autoIncrement: true,
-    unique: true
+    unique: true,
   },
   name: {
     allowNull: false,
@@ -38,7 +38,7 @@ const productSchema = {
       key: 'id',
     },
     onUpdate: 'CASCADE',
-    onDelete: 'SET NULL'
+    onDelete: 'SET NULL',
   },
   targetId: {
     field: 'target_id',
@@ -49,9 +49,9 @@ const productSchema = {
       key: 'id',
     },
     onUpdate: 'CASCADE',
-    onDelete: 'SET NULL'
+    onDelete: 'SET NULL',
   },
-  gendertId: {
+  genderId: {
     field: 'gender_id',
     allowNull: false,
     type: DataTypes.INTEGER,
@@ -60,7 +60,7 @@ const productSchema = {
       key: 'id',
     },
     onUpdate: 'CASCADE',
-    onDelete: 'SET NULL'
+    onDelete: 'SET NULL',
   },
   images: {
     allowNull: true,
