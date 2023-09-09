@@ -27,6 +27,12 @@ router.get(
 
 router.post('/', validatorHandler(createUserSchema, 'body'), createUser);
 
+router.post(
+  '/activate-user',
+  passport.authenticate('jwt', { session: false }),
+  activateAccount,
+);
+
 router.patch(
   '/:username',
   passport.authenticate('jwt', { session: false }),
@@ -64,6 +70,15 @@ async function createUser(req, res, next) {
     const body = req.body;
     const newUser = await service.create(body);
     res.status(201).json({ message: 'User created successfully', newUser });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function activateAccount(req, res, next) {
+  try {
+    const user = req.user;
+    res.json(await service.activateAccount(user.sub));
   } catch (error) {
     next(error);
   }

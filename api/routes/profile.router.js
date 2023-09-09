@@ -1,7 +1,7 @@
 const express = require('express');
 const passport = require('passport');
-//const boom = require('@hapi/boom');
 const OrderService = require('../services/order.service');
+const { checkUser } = require('../middlewares/auth.handler');
 
 const router = express.Router();
 const service = new OrderService();
@@ -13,6 +13,7 @@ const service = new OrderService();
 router.get(
   '/my-orders',
   passport.authenticate('jwt', { session: false }),
+  checkUser(),
   getOrders,
 );
 

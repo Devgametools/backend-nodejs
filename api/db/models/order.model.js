@@ -10,7 +10,7 @@ const orderSchema = {
     autoIncrement: true,
     primaryKey: true,
     type: DataTypes.INTEGER,
-    unique: true
+    unique: true,
   },
   customerId: {
     field: 'customer_id',
@@ -18,10 +18,10 @@ const orderSchema = {
     type: DataTypes.INTEGER,
     references: {
       model: CUSTOMER_TABLE,
-      key: 'id'
+      key: 'id',
     },
     onUpdate: 'CASCADE',
-    onDelete: 'SET NULL'
+    onDelete: 'SET NULL',
   },
   shippingAddress: {
     field: 'shipping_address',
@@ -29,28 +29,28 @@ const orderSchema = {
     type: DataTypes.INTEGER,
     references: {
       model: ADDRESS_TABLE,
-      key: 'id'
+      key: 'id',
     },
     onUpdate: 'CASCADE',
-    onDelete: 'SET NULL'
+    onDelete: 'SET NULL',
   },
   orderStatus: {
     field: 'order_status',
     allowNull: false,
     type: DataTypes.STRING,
-    defaultValue: 'requested'
+    defaultValue: 'requested',
   },
   paymentStatus: {
     field: 'payment_status',
     allowNull: false,
     type: DataTypes.BOOLEAN,
-    defaultValue: false
+    defaultValue: false,
   },
   createdAt: {
     allowNull: false,
     type: DataTypes.DATE,
     field: 'created_at',
-    defaultValue: Sequelize.NOW
+    defaultValue: Sequelize.NOW,
   },
   modifiedAt: {
     allowNull: true,
@@ -62,14 +62,13 @@ const orderSchema = {
     get() {
       if (this.items.length > 0) {
         return this.items.reduce((total, item) => {
-          return total + (item.price * item.OrderProduct.amount);
+          return total + item.price * item.OrderProduct.amount;
         }, 0);
       }
       return 0;
-    }
-  }
-}
-
+    },
+  },
+};
 
 class Order extends Model {
   static associate(models) {
@@ -80,15 +79,16 @@ class Order extends Model {
       as: 'items',
       through: models.OrderProduct,
       foreignKey: 'orderId',
-      otherKey: 'productId'
+      otherKey: 'productId',
     });
-    this.belongsTo(models.Address, {
-      as: 'address'
+    this.hasOne(models.Address, {
+      as: 'address',
+      foreignKey: 'id',
     });
     this.hasOne(models.Payment, {
       as: 'payment',
-      foreignKey: 'orderId'
-    })
+      foreignKey: 'orderId',
+    });
   }
 
   static config(sequelize) {
@@ -96,8 +96,8 @@ class Order extends Model {
       sequelize,
       tableName: ORDER_TABLE,
       modelName: 'Order',
-      timestamps: false
-    }
+      timestamps: false,
+    };
   }
 }
 

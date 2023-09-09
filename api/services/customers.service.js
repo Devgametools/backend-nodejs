@@ -31,8 +31,10 @@ class CustomerService {
 
   async update(id, changes) {
     const customer = await this.find(id);
-    const newInfo = await customer.update(changes);
-    return { id, newInfo };
+    await customer.update(changes);
+    customer.set({ modifiedAt: Date.now() });
+    await customer.save();
+    return customer;
   }
 }
 

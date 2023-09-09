@@ -1,9 +1,6 @@
 const { Model, DataTypes } = require('sequelize');
-const { CATEGORY_TABLE } = require('./category.model');
-const { GENDER_TABLE } = require('./gender.model');
-const { TARGET_TABLE } = require('./target.model');
 
-const PRODUCT_TABLE = 'products';
+const PRODUCT_TABLE = 'product';
 
 const productSchema = {
   id: {
@@ -29,38 +26,9 @@ const productSchema = {
     allowNull: false,
     type: DataTypes.INTEGER,
   },
-  categoryId: {
-    field: 'category_id',
+  category: {
+    type: DataTypes.JSONB,
     allowNull: false,
-    type: DataTypes.INTEGER,
-    references: {
-      model: CATEGORY_TABLE,
-      key: 'id',
-    },
-    onUpdate: 'CASCADE',
-    onDelete: 'SET NULL',
-  },
-  targetId: {
-    field: 'target_id',
-    allowNull: false,
-    type: DataTypes.INTEGER,
-    references: {
-      model: TARGET_TABLE,
-      key: 'id',
-    },
-    onUpdate: 'CASCADE',
-    onDelete: 'SET NULL',
-  },
-  genderId: {
-    field: 'gender_id',
-    allowNull: false,
-    type: DataTypes.INTEGER,
-    references: {
-      model: GENDER_TABLE,
-      key: 'id',
-    },
-    onUpdate: 'CASCADE',
-    onDelete: 'SET NULL',
   },
   images: {
     allowNull: true,
@@ -69,10 +37,8 @@ const productSchema = {
 };
 
 class Product extends Model {
-  static associate(models) {
-    this.belongsTo(models.Category, { as: 'category' });
-    this.belongsTo(models.Target, { as: 'target' });
-    this.belongsTo(models.Gender, { as: 'gender' });
+  static associate() {
+    //
   }
 
   static config(sequelize) {

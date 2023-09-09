@@ -13,20 +13,17 @@ class AuthService {
       const user = await service.getUser(identifier);
       if (!user) {
         throw boom.unauthorized('User not found');
-      }
-      else {
+      } else {
         if (user.status === 'inactive') {
           throw boom.unauthorized('User Inactive');
-        }
-        else {
+        } else {
           const validatePassword = await bcrypt.compare(
             password,
             user.password,
           );
           if (!validatePassword) {
             throw boom.unauthorized('Invalid Password');
-          }
-          else {
+          } else {
             service.hideInfo(user);
             return user;
           }
@@ -98,8 +95,8 @@ class AuthService {
           sub: user.username,
         };
         const token = jwt.sign(payload, config.jwtSecret);
-        const link = `http://localhost:3000/api/v1/auth/recovery?token=${token}`;
-        await service.update(user.username, { recoveryToken: token });
+        const link = `http://localhost:3000/api/v1/auth/recovery-password?token=${token}`;
+        await service.update(user.username, { validatorToken: token });
         const info = {
           from: config.mailUser,
           to: user.customer.email,
@@ -114,8 +111,8 @@ class AuthService {
         sub: customer.user.username,
       };
       const token = jwt.sign(payload, config.jwtSecret);
-      const link = `http://localhost:3000/api/v1/auth/recovery?token=${token}`;
-      await service.update(customer.user.username, { recoveryToken: token });
+      const link = `http://localhost:3000/api/v1/auth/recovery-password?token=${token}`;
+      await service.update(customer.user.username, { validatorToken: token });
       const info = {
         from: config.mailUser,
         to: customer.email,
@@ -130,10 +127,10 @@ class AuthService {
   //******************************************************************************** */
   //******************************************************************************** */
 
-  async changePassword(identifier, newPassword) {
+  async recoveryPassword(identifier, newPassword) {
     try {
       const user = await service.find(identifier);
-      await service.update(user.username, { recoveryToken: null });
+      await service.update(user.username, { validatorToken: null });
       await service.updatePassword(user.username, { password: newPassword });
       return { message: 'Password has been changed succesfully' };
     } catch (error) {

@@ -18,8 +18,8 @@ const userSchema = {
       this.setDataValue('password', bcrypt.hashSync(value, 10));
     },
   },
-  recoveryToken: {
-    field: 'recovery_token',
+  validatorToken: {
+    field: 'validator_token',
     allowNull: true,
     type: DataTypes.STRING,
   },
@@ -31,7 +31,7 @@ const userSchema = {
   status: {
     allowNull: false,
     type: DataTypes.STRING,
-    defaultValue: 'active',
+    defaultValue: 'inactive',
   },
   customerId: {
     field: 'customer_id',

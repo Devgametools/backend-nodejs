@@ -1,5 +1,8 @@
 const boom = require('@hapi/boom');
+const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 
+const { config } = require('../config/config');
 const { models } = require('../libs/sequelize');
 
 class UsersService {
@@ -7,7 +10,69 @@ class UsersService {
 
   async hideInfo(data) {
     delete data.dataValues.password;
-    delete data.dataValues.recoveryToken;
+    delete data.dataValues.validatorToken;
+  }
+
+  async sendMail(info) {
+    const transporter = nodemailer.createTransport({
+      host: config.mailServer,
+      secure: true,
+      port: 465,
+      auth: {
+        user: config.mailUser,
+        pass: config.mailPassword,
+      },
+    });
+    await transporter.sendMail(info);
+    return;
+  }
+
+  async activationRequest(identifier) {
+    const user = await this.userLogin(identifier);
+    if (!user) {
+      throw boom.unauthorized();
+    } else {
+      const payload = {
+        sub: user.username,
+      };
+      const token = jwt.sign(payload, config.jwtSecret);
+      const link = `http://localhost:3000/api/v1/users/activate-user?token=${token}`;
+      user.set({ validatorToken: token });
+      await user.save();
+      const info = {
+        from: config.mailUser,
+        to: user.customer.email,
+        subject: "Baby's Room - Activa tu cuenta",
+        html: `<b>Hola estimado/a ${user.customer.name}, haz click en este link para activar tu cuenta: ${link}</b>`,
+      };
+      await this.sendMail(info);
+      return { message: 'Activation email has been sent' };
+    }
+  }
+
+  async create(data) {
+    const newUser = await models.User.create(data, { include: ['customer'] });
+    if (!newUser) {
+      throw boom.notAcceptable('No data found to create user');
+    } else {
+      this.hideInfo(newUser);
+      this.activationRequest(newUser.username);
+      return newUser;
+    }
+  }
+
+  async activateAccount(identifier) {
+    try {
+      const user = await this.find(identifier);
+      user.set({
+        validatorToken: null,
+        status: 'active',
+      });
+      await user.save();
+      return { message: 'User has been activated successfully' };
+    } catch (error) {
+      throw boom.unauthorized(error);
+    }
   }
 
   async show() {
@@ -35,7 +100,10 @@ class UsersService {
   }
 
   async userLogin(username) {
-    const user = await models.User.findOne({ where: { username } });
+    const user = await models.User.findOne({
+      where: { username },
+      include: ['customer'],
+    });
     return user;
   }
 
@@ -58,16 +126,6 @@ class UsersService {
       }
     } else {
       return user;
-    }
-  }
-
-  async create(data) {
-    const newUser = await models.User.create(data, { include: ['customer'] });
-    if (!newUser) {
-      throw boom.notAcceptable('No data found to create user');
-    } else {
-      this.hideInfo(newUser);
-      return newUser;
     }
   }
 

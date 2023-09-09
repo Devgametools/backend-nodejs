@@ -1,5 +1,6 @@
 const { Model, DataTypes } = require('sequelize');
-const { CUSTOMER_TABLE } =  require('./customer.model');
+const { CUSTOMER_TABLE } = require('./customer.model');
+const { PRODUCT_TABLE } = require('./product.model');
 
 const CART_TABLE = 'cart';
 
@@ -9,7 +10,7 @@ const cartSchema = {
     autoIncrement: true,
     allowNull: false,
     type: DataTypes.INTEGER,
-    unique: true
+    unique: true,
   },
   customerId: {
     field: 'customer_id',
@@ -18,34 +19,46 @@ const cartSchema = {
     unique: true,
     references: {
       model: CUSTOMER_TABLE,
-      key: 'id'
+      key: 'id',
     },
     onUpdate: 'CASCADE',
-    onDelete: 'SET NULL'
+    onDelete: 'SET NULL',
+  },
+  productId: {
+    field: 'product_id',
+    allowNull: false,
+    type: DataTypes.INTEGER,
+    references: {
+      model: PRODUCT_TABLE,
+      key: 'id',
+    },
+    onUpdate: 'CASCADE',
+    onDelete: 'SET NULL',
+  },
+  quantity: {
+    allowNull: false,
+    type: DataTypes.INTEGER,
+  },
+};
+
+class Cart extends Model {
+  static associate(models) {
+    this.belongsTo(models.Customer, {
+      as: 'customer',
+    });
+    this.belongsTo(models.Product, {
+      as: 'product',
+    });
+  }
+
+  static config(sequelize) {
+    return {
+      sequelize,
+      tableName: CART_TABLE,
+      modelName: 'Cart',
+      timestamps: false,
+    };
   }
 }
 
-  class Cart extends Model {
-    static associate (models) {
-      this.belongsTo(models.Customer, {
-        as: 'customer'
-      });
-      this.belongsToMany(models.Product, {
-        as: 'items',
-        through: models.CartProduct,
-        foreignKey: 'cartId',
-        otherKey: 'productId'
-      });
-    }
-
-    static config (sequelize) {
-      return {
-        sequelize,
-        tableName: CART_TABLE,
-        modelName: 'Cart',
-        timestamps: false
-      }
-    }
-  }
-
-  module.exports = { CART_TABLE, cartSchema, Cart };
+module.exports = { CART_TABLE, cartSchema, Cart };

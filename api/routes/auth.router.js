@@ -14,11 +14,13 @@ router.post(
   passport.authenticate('local', { session: false }),
   login,
 );
+
 router.post('/recovery', recover);
+
 router.post(
-  '/change-password/:username',
+  '/recovery-password',
   passport.authenticate('jwt', { session: false }),
-  changePassword,
+  recoveryPassword,
 );
 
 // ************************************************************************************
@@ -44,10 +46,11 @@ async function recover(req, res, next) {
   }
 }
 
-async function changePassword(req, res, next) {
+async function recoveryPassword(req, res, next) {
   try {
-    const { identifier, newPassword } = req.body;
-    res.json(service.changePassword(identifier, newPassword));
+    const user = req.user;
+    const { newPassword } = req.body;
+    res.json(await service.recoveryPassword(user.sub, newPassword));
   } catch (error) {
     next(error);
   }

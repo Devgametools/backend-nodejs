@@ -7,7 +7,6 @@ class ProductsService {
 
   async show(query) {
     const options = {
-      include: ['category', 'gender', 'target'],
       where: {},
     };
     const { limit, offset, price_min, price_max } = query;
