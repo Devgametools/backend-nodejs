@@ -3,7 +3,7 @@ const boom = require('@hapi/boom');
 const jwt = require('jsonwebtoken');
 const { config } = require('../config/config');
 const UserService = require('./users.service');
-const { sendMail } = require('../utils/nodemailer');
+const { sendMail } = require('../utils/mail');
 
 const service = new UserService();
 

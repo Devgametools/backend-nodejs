@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 
 const { config } = require('../config/config');
 const { models } = require('../libs/sequelize');
-const { sendMail } = require('../utils/nodemailer');
+const { sendMail } = require('../utils/mail');
 
 class UsersService {
   constructor() {}
