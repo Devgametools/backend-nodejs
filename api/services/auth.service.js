@@ -1,9 +1,9 @@
 const bcrypt = require('bcryptjs');
 const boom = require('@hapi/boom');
 const jwt = require('jsonwebtoken');
-const nodemailer = require('nodemailer');
 const { config } = require('../config/config');
 const UserService = require('./users.service');
+const { sendMail } = require('../utils/nodemailer');
 
 const service = new UserService();
 
@@ -67,23 +67,6 @@ class AuthService {
   //******************************************************************************** */
   //******************************************************************************** */
 
-  async sendMail(info) {
-    const transporter = nodemailer.createTransport({
-      host: config.mailServer,
-      secure: true,
-      port: 465,
-      auth: {
-        user: config.mailUser,
-        pass: config.mailPassword,
-      },
-    });
-    await transporter.sendMail(info);
-    return;
-  }
-
-  //******************************************************************************** */
-  //******************************************************************************** */
-
   async sendRecovery(identifier) {
     const customer = await service.emailLogin(identifier);
     if (!customer) {
@@ -103,7 +86,7 @@ class AuthService {
           subject: "Baby's Room - Password Recovery",
           html: `<b>Hola estimado ${user.customer.name}, haz click en este link para recuperar tu contrasena: ${link}</b>`,
         };
-        await this.sendMail(info);
+        await sendMail(info);
         return { message: 'Recovery email has been sent' };
       }
     } else {
@@ -119,7 +102,7 @@ class AuthService {
         subject: "Baby's Room - Password Recovery",
         html: `<b>Hola estimado ${customer.name}, haz click en este link para recuperar tu contrasena: ${link}</b>`,
       };
-      await this.sendMail(info);
+      await sendMail(info);
       return { message: 'Recovery email has been sent' };
     }
   }

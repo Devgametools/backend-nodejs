@@ -1,30 +1,16 @@
 const boom = require('@hapi/boom');
 const jwt = require('jsonwebtoken');
-const nodemailer = require('nodemailer');
 
 const { config } = require('../config/config');
 const { models } = require('../libs/sequelize');
+const { sendMail } = require('../utils/nodemailer');
 
 class UsersService {
   constructor() {}
 
-  async hideInfo(data) {
-    delete data.dataValues.password;
-    delete data.dataValues.validatorToken;
-  }
-
-  async sendMail(info) {
-    const transporter = nodemailer.createTransport({
-      host: config.mailServer,
-      secure: true,
-      port: 465,
-      auth: {
-        user: config.mailUser,
-        pass: config.mailPassword,
-      },
-    });
-    await transporter.sendMail(info);
-    return;
+  async hideInfo(user) {
+    delete user.dataValues.password;
+    delete user.dataValues.validatorToken;
   }
 
   async activationRequest(identifier) {
@@ -45,7 +31,7 @@ class UsersService {
         subject: "Baby's Room - Activa tu cuenta",
         html: `<b>Hola estimado/a ${user.customer.name}, haz click en este link para activar tu cuenta: ${link}</b>`,
       };
-      await this.sendMail(info);
+      await sendMail(info);
       return { message: 'Activation email has been sent' };
     }
   }
@@ -64,12 +50,16 @@ class UsersService {
   async activateAccount(identifier) {
     try {
       const user = await this.find(identifier);
-      user.set({
-        validatorToken: null,
-        status: 'active',
-      });
-      await user.save();
-      return { message: 'User has been activated successfully' };
+      if (user.status === 'inactive') {
+        user.set({
+          validatorToken: null,
+          status: 'active',
+        });
+        await user.save();
+        return { message: 'User has been activated successfully' };
+      } else {
+        return { message: 'User is already active' };
+      }
     } catch (error) {
       throw boom.unauthorized(error);
     }
