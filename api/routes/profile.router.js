@@ -1,10 +1,11 @@
 const express = require('express');
 const passport = require('passport');
 const OrderService = require('../services/order.service');
-const { checkUser } = require('../middlewares/auth.handler');
+const CartService = require('../services/cart.service');
 
 const router = express.Router();
-const service = new OrderService();
+const os = new OrderService();
+const cs = new CartService();
 
 // ************************************************************************************
 //  *-- ROUTES --*
@@ -13,8 +14,13 @@ const service = new OrderService();
 router.get(
   '/my-orders',
   passport.authenticate('jwt', { session: false }),
-  checkUser(),
   getOrders,
+);
+
+router.get(
+  '/my-cart',
+  passport.authenticate('jwt', { session: false }),
+  getShoppingCart,
 );
 
 // ************************************************************************************
@@ -24,8 +30,18 @@ router.get(
 async function getOrders(req, res, next) {
   try {
     const user = req.user;
-    const orders = await service.findByUser(user.cid);
+    const orders = await os.findByUser(user.cid);
     res.json(orders);
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function getShoppingCart(req, res, next) {
+  try {
+    const user = req.user;
+    const cart = await cs.show(user.cid);
+    res.json(cart);
   } catch (error) {
     next(error);
   }

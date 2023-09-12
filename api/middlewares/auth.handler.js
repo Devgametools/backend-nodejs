@@ -33,4 +33,16 @@ function checkUser() {
   };
 }
 
-module.exports = { checkApiKey, checkRoles, checkUser };
+function checkCustomer() {
+  return (req, res, next) => {
+    const user = req.user;
+    const { id } = req.params;
+    if (user.cid === id) {
+      next();
+    } else {
+      next(boom.unauthorized());
+    }
+  };
+}
+
+module.exports = { checkApiKey, checkRoles, checkUser, checkCustomer };

@@ -37,11 +37,11 @@ class AddressService {
   }
 
   async update(id, changes) {
-    const customer = await this.find(id);
-    await customer.update(changes);
-    customer.set({ modifiedAt: Date.now() });
-    await customer.save();
-    return customer;
+    const address = await this.find(id);
+    await address.update(changes);
+    address.set({ modifiedAt: Date.now() });
+    await address.save();
+    return address;
   }
 
   async delete(id) {
