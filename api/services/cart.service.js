@@ -66,31 +66,53 @@ class CartService {
         },
       ],
     });
-    return item;
-  }
-
-  async update(id, changes) {
-    const item = await this.find(id);
-    const product = await products.find(item.productId);
-    const validateStock = changes.quantity <= product.stock;
-    if (validateStock) {
-      await item.update(changes);
-      return {
-        message: 'Producto actualizado correctamente',
-        Cart_Detail: item,
-      };
+    if (item) {
+      return item;
     } else {
       return {
-        message: 'No hay suficiente stock para la cantidad solicitada',
-        Product_Detail: product,
+        message: 'Item no encontrado',
       };
     }
   }
 
-  async delete(id) {
-    const item = await this.find(id);
-    item.destroy();
-    return id;
+  async update(productId, customerId, changes) {
+    const item = await this.findProduct(productId, customerId);
+    if (item.id) {
+      const product = await products.find(productId);
+      const validateStock = changes.quantity <= product.stock;
+      if (validateStock) {
+        await item.update(changes);
+        return {
+          message: 'Producto actualizado correctamente',
+          Cart_Detail: item,
+        };
+      } else {
+        return {
+          message: 'No hay suficiente stock para la cantidad solicitada',
+          Product_Detail: product,
+        };
+      }
+    } else {
+      return {
+        message: 'Item no existe en el shopping cart',
+      };
+    }
+  }
+
+  async delete(productId, customerId) {
+    const item = await this.findProduct(productId, customerId);
+    if (item.id) {
+      return (
+        item.destroy(),
+        {
+          message: 'Producto eliminado del shopping cart',
+        }
+      );
+    } else {
+      return {
+        message: 'Item no encontrado',
+      };
+    }
   }
 }
 

@@ -1,7 +1,7 @@
 const joi = require('joi');
 
 //const id = joi.number().integer();
-const customerId = joi.number().integer();
+//const customerId = joi.number().integer();
 const productId = joi.number().integer();
 const quantity = joi.number().integer();
 
@@ -16,7 +16,6 @@ const updateCartSchema = joi.object({
 
 const getProductSchema = joi.object({
   productId: productId.required(),
-  customerId: customerId.required(),
 });
 
 module.exports = { addItemSchema, updateCartSchema, getProductSchema };
