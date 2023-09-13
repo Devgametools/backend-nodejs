@@ -5,7 +5,6 @@ const quantity = joi.number().integer();
 
 const addItemSchema = joi.object({
   productId: productId.required(),
-  quantity: quantity.required(),
 });
 
 const updateCartSchema = joi.object({

@@ -8,25 +8,6 @@ const products = new ProductService();
 class CartService {
   constructor() {}
 
-  async addItem(data, id) {
-    const product = await products.find(data.productId);
-    const validateStock = data.quantity <= product.stock;
-    if (validateStock) {
-      const item = await models.Cart.create({ ...data, customerId: id });
-      return {
-        message: 'Producto agregado al Shopping Cart',
-        Cart_Info: item,
-        Product_Detail: product,
-      };
-    } else {
-      return {
-        message:
-          'No hay suficiente stock para la cantidad solicitada del siguiente producto',
-        Product_detail: product,
-      };
-    }
-  }
-
   async show(id) {
     const items = await models.Cart.findAll({
       where: { customerId: id },
@@ -36,11 +17,7 @@ class CartService {
         },
       ],
     });
-    if (!items) {
-      throw boom.badRequest('Error');
-    } else {
-      return items;
-    }
+    return items;
   }
 
   async find(id) {
@@ -48,7 +25,7 @@ class CartService {
       include: ['product'],
     });
     if (!item) {
-      throw boom.notFound('Item not found');
+      throw boom.notFound('Item no existe en el shopping cart');
     } else {
       return item;
     }
@@ -70,8 +47,45 @@ class CartService {
       return item;
     } else {
       return {
-        message: 'Item no encontrado',
+        message: 'Item no existe en el shopping cart',
       };
+    }
+  }
+
+  async addItem(data, id) {
+    const product = await products.find(data.productId);
+    const itemInCart = await this.findProduct(data.productId, id);
+    if (itemInCart.id) {
+      const validateStock = itemInCart.quantity + 1 <= product.stock;
+      if (validateStock) {
+        itemInCart.set({ quantity: itemInCart.quantity + 1 });
+        itemInCart.save();
+        return {
+          message: 'Producto agregado al Shopping Cart',
+          product: itemInCart,
+        };
+      } else {
+        return {
+          message:
+            'No hay suficiente stock para la cantidad solicitada del siguiente producto',
+        };
+      }
+    } else {
+      const validateStock = product.stock >= 1;
+      if (validateStock) {
+        const item = await models.Cart.create({ ...data, customerId: id });
+        return {
+          message: 'Producto agregado al Shopping Cart',
+          Cart_Info: item,
+          Product_Detail: product,
+        };
+      } else {
+        return {
+          message:
+            'No hay suficiente stock para la cantidad solicitada del siguiente producto',
+          Product_detail: product,
+        };
+      }
     }
   }
 
@@ -110,7 +124,7 @@ class CartService {
       );
     } else {
       return {
-        message: 'Item no encontrado',
+        message: 'Item no existe en el shopping cart',
       };
     }
   }

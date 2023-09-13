@@ -37,6 +37,7 @@ const cartSchema = {
   quantity: {
     allowNull: false,
     type: DataTypes.INTEGER,
+    defaultValue: 1,
   },
 };
 
