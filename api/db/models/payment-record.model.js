@@ -9,7 +9,7 @@ const paymentSchema = {
     autoIncrement: true,
     allowNull: false,
     type: DataTypes.INTEGER,
-    unique: true
+    unique: true,
   },
   orderId: {
     field: 'order_id',
@@ -17,10 +17,10 @@ const paymentSchema = {
     type: DataTypes.INTEGER,
     references: {
       model: ORDER_TABLE,
-      key: 'id'
+      key: 'id',
     },
     onUpdate: 'CASCADE',
-    onDelete: 'SET NULL'
+    onDelete: 'SET NULL',
   },
   method: {
     allowNull: false,
@@ -29,31 +29,31 @@ const paymentSchema = {
   voucher: {
     allowNull: false,
     type: DataTypes.STRING,
-    unique: true
+    unique: true,
   },
   image: {
     allowNull: false,
-    type: DataTypes.TEXT
+    type: DataTypes.TEXT,
   },
   date: {
     allowNull: false,
     type: DataTypes.DATE,
-    defaultValue: Sequelize.NOW
-  }
-}
+    defaultValue: Sequelize.NOW,
+  },
+};
 
 class Payment extends Model {
-  static associate (models) {
-    this.belongsTo(models.Order, {as: 'order'});
+  static associate(models) {
+    this.belongsTo(models.Order, { as: 'order' });
   }
 
-  static config (sequelize) {
+  static config(sequelize) {
     return {
       sequelize,
       tableName: PAYMENT_TABLE,
       modelName: 'Payment',
-      timestamps: false
-    }
+      timestamps: false,
+    };
   }
 }
 

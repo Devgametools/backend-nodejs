@@ -6,7 +6,10 @@ class AddressService {
 
   async create(data, id) {
     const address = await models.Address.create({ ...data, customerId: id });
-    return address;
+    return {
+      message: 'Direccion creada satisfactoriamente',
+      address,
+    };
   }
 
   async show(id) {
@@ -25,29 +28,55 @@ class AddressService {
     }
   }
 
-  async find(id) {
-    const address = await models.Address.findByPk(id, {
-      include: ['customer'],
+  async find(id, cid) {
+    const address = await models.Address.findOne({
+      where: {
+        id: id,
+        customerId: cid,
+      },
+      include: [
+        {
+          association: 'customer',
+        },
+      ],
     });
     if (!address) {
-      throw boom.notFound('Address not found');
+      return { message: 'Direccion no existe' };
     } else {
       return address;
     }
   }
 
-  async update(id, changes) {
-    const address = await this.find(id);
-    await address.update(changes);
-    address.set({ modifiedAt: Date.now() });
-    await address.save();
-    return address;
+  async update(id, cid, changes) {
+    const address = await this.find(id, cid);
+    if (address.id) {
+      await address.update(changes);
+      address.set({ modifiedAt: Date.now() });
+      await address.save();
+      return {
+        message: 'Direccion actualizada correctamente',
+        address,
+      };
+    } else {
+      return {
+        message: 'Direccion no existe',
+      };
+    }
   }
 
-  async delete(id) {
-    const address = await this.find(id);
-    address.destroy();
-    return id;
+  async delete(id, cid) {
+    const address = await this.find(id, cid);
+    if (address.id) {
+      address.destroy();
+      return {
+        id: id,
+        message: 'Direccion eliminada correctamente',
+      };
+    } else {
+      return {
+        message: 'Direccion no existe',
+      };
+    }
   }
 }
 

@@ -56,7 +56,7 @@ const orderSchema = {
     allowNull: true,
     type: DataTypes.DATE,
     field: 'modified_at',
-  },
+  } /*
   total: {
     type: DataTypes.VIRTUAL,
     get() {
@@ -67,7 +67,7 @@ const orderSchema = {
       }
       return 0;
     },
-  },
+  },*/,
 };
 
 class Order extends Model {

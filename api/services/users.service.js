@@ -39,11 +39,20 @@ class UsersService {
   async create(data) {
     const newUser = await models.User.create(data, { include: ['customer'] });
     if (!newUser) {
-      throw boom.notAcceptable('No data found to create user');
+      return {
+        message: 'Error al crear usuario',
+      };
     } else {
       this.hideInfo(newUser);
       this.activationRequest(newUser.username);
-      return newUser;
+      const wallet = await models.Wallet.create({
+        customerId: newUser.customer.id,
+      });
+      return {
+        message: 'Usuario creado exitosamente',
+        newUser,
+        wallet: wallet.cash,
+      };
     }
   }
 

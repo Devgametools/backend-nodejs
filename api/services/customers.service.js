@@ -34,7 +34,10 @@ class CustomerService {
     await customer.update(changes);
     customer.set({ modifiedAt: Date.now() });
     await customer.save();
-    return customer;
+    return {
+      message: 'Datos actualizados correctamente',
+      customer,
+    };
   }
 }
 

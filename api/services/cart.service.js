@@ -68,6 +68,9 @@ class CartService {
         return {
           message:
             'No hay suficiente stock para la cantidad solicitada del siguiente producto',
+          product: product.name,
+          quantity: itemInCart.quantity,
+          stock: product.stock,
         };
       }
     } else {
@@ -83,7 +86,8 @@ class CartService {
         return {
           message:
             'No hay suficiente stock para la cantidad solicitada del siguiente producto',
-          Product_detail: product,
+          product: product.name,
+          stock: product.stock,
         };
       }
     }
@@ -103,7 +107,8 @@ class CartService {
       } else {
         return {
           message: 'No hay suficiente stock para la cantidad solicitada',
-          Product_Detail: product,
+          product: product.name,
+          stock: product.stock,
         };
       }
     } else {

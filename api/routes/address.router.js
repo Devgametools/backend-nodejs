@@ -64,14 +64,8 @@ async function findAddress(req, res, next) {
   try {
     const { id } = req.params;
     const user = req.user;
-    const address = await service.find(parseInt(id));
-    if (address.customerId === user.cid) {
-      res.status(200).json(address);
-    } else {
-      res
-        .status(401)
-        .json({ message: 'No autorizado para realizar esta accion' });
-    }
+    const address = await service.find(parseInt(id), user.cid);
+    res.status(200).json(address);
   } catch (error) {
     next(error);
   }
@@ -82,9 +76,7 @@ async function createAddress(req, res, next) {
     const body = req.body;
     const user = req.user;
     const address = await service.create(body, user.cid);
-    res
-      .status(201)
-      .json({ message: 'Direccion creada satisfactoriamente', address });
+    res.status(201).json(address);
   } catch (error) {
     next(error);
   }
@@ -95,18 +87,8 @@ async function updateAddress(req, res, next) {
     const { id } = req.params;
     const body = req.body;
     const user = req.user;
-    const address = await service.find(id);
-    if (address.customerId === user.cid) {
-      const newAddress = await service.update(id, body);
-      res.status(202).json({
-        message: 'Direccion actualizada satisfactoriamente',
-        newAddress,
-      });
-    } else {
-      res
-        .status(401)
-        .json({ message: 'No autorizado para realizar esta accion' });
-    }
+    const address = await service.update(id, user.cid, body);
+    res.status(202).json(address);
   } catch (error) {
     next(error);
   }
@@ -116,17 +98,7 @@ async function deleteAddress(req, res, next) {
   try {
     const { id } = req.params;
     const user = req.user;
-    const address = await service.find(id);
-    if (address.customerId === user.cid) {
-      await service.delete(id);
-      res
-        .status(202)
-        .json({ message: 'Direccion eliminada correctamente', id });
-    } else {
-      res
-        .status(401)
-        .json({ message: 'No autorizado para realizar esta accion' });
-    }
+    res.status(202).json(await service.delete(id, user.cid));
   } catch (error) {
     next(error);
   }

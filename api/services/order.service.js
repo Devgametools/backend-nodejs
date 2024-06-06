@@ -2,15 +2,18 @@ const boom = require('@hapi/boom');
 const { models } = require('../libs/sequelize');
 
 class OrderService {
+  constructor() {}
 
-  constructor(){
-  }
-  async create(data) {
+  async create(data, cid) {
+    data.customerId = cid;
     const newOrder = await models.Order.create(data);
     if (!newOrder) {
       throw boom.badRequest('Error');
     } else {
-      return newOrder;
+      return {
+        message: 'Orden Creada correctamente',
+        newOrder,
+      };
     }
   }
 
@@ -24,7 +27,7 @@ class OrderService {
   }
 
   async show() {
-    const orders = await models.Order.findAll({include: ['customer']});
+    const orders = await models.Order.findAll({ include: ['customer'] });
     if (!orders) {
       throw boom.notFound('No information response');
     } else {
@@ -33,7 +36,9 @@ class OrderService {
   }
 
   async find(id) {
-    const order = await models.Order.findByPk(id, {include: [{association: 'customer', include: ['user']}, 'items']});
+    const order = await models.Order.findByPk(id, {
+      include: [{ association: 'customer', include: ['user'] }, 'items'],
+    });
     if (!order) {
       throw boom.notFound('Order not found');
     } else {
@@ -41,16 +46,16 @@ class OrderService {
     }
   }
 
-  async findByUser (customerId) {
+  async findByUser(customerId) {
     const orders = await models.Order.findAll({
       where: {
-        'customerId': customerId
+        customerId: customerId,
       },
       include: [
         {
-          association: 'customer'
-        }
-      ]
+          association: 'customer',
+        },
+      ],
     });
     return orders;
   }
@@ -66,7 +71,6 @@ class OrderService {
     await order.destroy();
     return id;
   }
-
 }
 
 module.exports = OrderService;

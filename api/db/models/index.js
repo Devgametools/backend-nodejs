@@ -6,6 +6,7 @@ const { Cart, cartSchema } = require('./cart.model');
 const { Order, orderSchema } = require('./order.model');
 const { OrderProduct, orderProductSchema } = require('./order-product.model');
 const { Payment, paymentSchema } = require('./payment-record.model');
+const { Wallet, walletSchema } = require('./wallet.model');
 
 function setupModels(sequelize) {
   Product.init(productSchema, Product.config(sequelize));
@@ -17,6 +18,7 @@ function setupModels(sequelize) {
   Customer.init(customerSchema, Customer.config(sequelize));
   OrderProduct.init(orderProductSchema, OrderProduct.config(sequelize));
   Payment.init(paymentSchema, Payment.config(sequelize));
+  Wallet.init(walletSchema, Wallet.config(sequelize));
 
   Product.associate(sequelize.models);
   User.associate(sequelize.models);
@@ -25,6 +27,7 @@ function setupModels(sequelize) {
   Order.associate(sequelize.models);
   Payment.associate(sequelize.models);
   Cart.associate(sequelize.models);
+  Wallet.associate(sequelize.models);
 }
 
 module.exports = setupModels;

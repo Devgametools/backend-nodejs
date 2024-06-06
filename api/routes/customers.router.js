@@ -50,8 +50,7 @@ async function updateCustomer(req, res, next) {
   try {
     const { id } = req.params;
     const body = req.body;
-    await service.update(parseInt(id), body);
-    res.status(202).json({ message: 'Customer updated successfully', body });
+    res.status(202).json(await service.update(parseInt(id), body));
   } catch (error) {
     next(error);
   }
